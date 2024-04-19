@@ -1,33 +1,6 @@
-# Build stage for BerkeleyDB
-FROM alpine as berkeleydb
-
-RUN sed -i 's/http\:\/\/dl-cdn.alpinelinux.org/https\:\/\/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
-RUN apk --no-cache add autoconf
-RUN apk --no-cache add automake
-RUN apk --no-cache add build-base
-RUN apk --no-cache add libressl
-
-ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/opt/${BERKELEYDB_VERSION}
-
-RUN wget https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz
-RUN tar -xzf *.tar.gz
-RUN sed s/__atomic_compare_exchange/__atomic_compare_exchange_db/g -i ${BERKELEYDB_VERSION}/dbinc/atomic.h
-RUN mkdir -p ${BERKELEYDB_PREFIX}
-
-WORKDIR /${BERKELEYDB_VERSION}/build_unix
-
-RUN ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=${BERKELEYDB_PREFIX} --build=aarch64-unknown-linux-gnu
-RUN make -j4
-RUN make install
-RUN rm -rf ${BERKELEYDB_PREFIX}/docs
-
 # Build stage for Bitcoin Core
 FROM alpine as bitcoin-core
 
-COPY --from=berkeleydb /opt /opt
-
-RUN sed -i 's/http\:\/\/dl-cdn.alpinelinux.org/https\:\/\/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
 RUN apk --no-cache add autoconf
 RUN apk --no-cache add automake
 RUN apk --no-cache add boost-dev
@@ -67,26 +40,24 @@ RUN set -ex \
 
 WORKDIR "${BITCOIN_SOURCE_DIR}/bitcoin-${BITCOIN_VERSION}"
 
-RUN sed -i s:sys/fcntl.h:fcntl.h: src/compat/compat.h
 RUN ./autogen.sh
-RUN ./configure LDFLAGS=-L`ls -d /opt/db*`/lib/ CPPFLAGS=-I`ls -d /opt/db*`/include/ \
+RUN ./configure \
   --prefix=${BITCOIN_PREFIX} \
   --mandir=/usr/share/man \
   --disable-tests \
   --disable-bench \
+  --disable-fuzz-binary \
   --disable-ccache \
   --with-gui=no \
   --with-utils \
-  --with-libs \
+  --without-libs \
   --with-sqlite=yes \
   --with-daemon
-RUN make -j4
-RUN make install
+RUN make -j`nproc` -C src bitcoind bitcoin-cli bitcoin-tx
+RUN make -j`nproc` install
 RUN strip ${BITCOIN_PREFIX}/bin/bitcoin-cli
 RUN strip ${BITCOIN_PREFIX}/bin/bitcoin-tx
 RUN strip ${BITCOIN_PREFIX}/bin/bitcoind
-RUN strip ${BITCOIN_PREFIX}/lib/libbitcoinconsensus.a
-RUN strip ${BITCOIN_PREFIX}/lib/libbitcoinconsensus.so.0.0.0
 
 # Build stage for compiled artifacts
 FROM alpine
@@ -98,7 +69,6 @@ LABEL maintainer.0="Will Clark (@willcl-ark)"
 
 RUN addgroup bitcoin --gid ${GID} --system
 RUN adduser --uid ${UID} --system bitcoin --ingroup bitcoin
-RUN sed -i 's/http\:\/\/dl-cdn.alpinelinux.org/https\:\/\/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
 RUN apk --no-cache add \
   libevent \
   libzmq \
