@@ -30,7 +30,7 @@ jobs:
           function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
           BITCOIN_VERSION=${{matrix.version}}
-          LATEST_BITCOIN_MAJOR_VERSION=$(find . -type d -maxdepth 1 -not -path '*/\.*' | sort -n | tail -n 1 | cut -c 3-)
+          LATEST_BITCOIN_MAJOR_VERSION=$(find . -type d -maxdepth 1 -not -path '*/\.*' -not -path '*/deprecated' | sort -n | tail -n 1 | cut -c 3-)
           PLATFORMS="linux/amd64"
           PUSH=false
           REPO=bitcoin/bitcoin
