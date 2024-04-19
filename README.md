@@ -1,72 +1,41 @@
 # bitcoin/bitcoin
 
-A bitcoin-core docker image with support for the following platforms:
-
-* `amd64` (x86_64)
-* `arm32v7` (armv7)
-* `arm64` (aarch64, armv8)
-
 [![bitcoin/bitcoin][docker-pulls-image]][docker-hub-url] [![bitcoin/bitcoin][docker-stars-image]][docker-hub-url] [![bitcoin/bitcoin][docker-size-image]][docker-hub-url]
+
+## About the images
+
+These images are built with support for the following platforms:
+
+| Image                               | Platforms                              |
+|-------------------------------------|----------------------------------------|
+| &lt;tag&gt;:&lt;version&gt;         | linux/amd64, linux/arm64, linux/arm/v7 |
+| &lt;tag&gt;:&lt;version&gt;-alpine; | linux/amd64                            |
+
+The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
+
+The alpine images are built from source inside the CI.
 
 ## Tags
 
-- `27.0`, `27`, `latest` ([27/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27/Dockerfile)) [**multi-arch**]
+- `27.0`, `27`, `latest` ([27/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27/Dockerfile)) [**multi-platform**]
 - `27.0-alpine`, `27-alpine` ([27/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27/alpine/Dockerfile))
 
-- `26.1`, `26`, `latest` ([26/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26/Dockerfile)) [**multi-arch**]
+- `26.1`, `26`, `latest` ([26/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26/Dockerfile)) [**multi-platform**]
 - `26.1-alpine`, `26-alpine` ([26/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26/alpine/Dockerfile))
 
-- `25.2`, `25`, `latest` ([25/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25/Dockerfile)) [**multi-arch**]
+- `25.2`, `25`, `latest` ([25/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25/Dockerfile)) [**multi-platform**]
 - `25.2-alpine`, `25-alpine` ([25/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25/alpine/Dockerfile))
 
-- `24.2`, `24`, `latest` ([24/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/24/Dockerfile)) [**multi-arch**]
-- `24.2-alpine`, `24-alpine` ([24/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/24/alpine/Dockerfile))
+### Picking the right tag
 
-- `23.2`, `23` ([23/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/23/Dockerfile)) [**multi-arch**]
-- `23.2-alpine`, `23-alpine` ([23/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/23/alpine/Dockerfile))
-
-- `22.1`, `22`, ([22/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/22/Dockerfile)) [**multi-arch**]
-- `22.1-alpine`, `22-alpine` ([22/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/22/alpine/Dockerfile))
-
-- `0.21.1`, `0.21` ([0.21/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.21/Dockerfile)) [**multi-arch**]
-- `0.21.1-alpine`, `0.21-alpine` ([0.21/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.21/alpine/Dockerfile))
-
-- `0.20.1`, `0.20` ([0.20/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.20/Dockerfile)) [**multi-arch**]
-- `0.20.1-alpine`, `0.20-alpine` ([0.20/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.20/alpine/Dockerfile))
-
-- `0.19.1`, `0.19` ([0.19/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.19/Dockerfile)) [**multi-arch**]
-- `0.19.1-alpine`, `0.19-alpine` ([0.19/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.19/alpine/Dockerfile))
-
-- `0.18.1`, `0.18`, ([0.18/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.18/Dockerfile))
-- `0.18.1-alpine`, `0.18-alpine` ([0.18/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.18/alpine/Dockerfile))
-
-- `0.17.1`, `0.17` ([0.17/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.17/Dockerfile))
-- `0.17.1-alpine`, `0.17-alpine` ([0.17/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.17/alpine/Dockerfile))
-
-- `0.16.3`, `0.16` ([0.16/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.16/Dockerfile))
-- `0.16.3-alpine`, `0.16-alpine` ([0.16/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.16/alpine/Dockerfile))
-
-- `0.15.1`, `0.15` ([0.15/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.15/Dockerfile))
-- `0.15.1-alpine`, `0.15-alpine` ([0.15/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.15/alpine/Dockerfile))
-
-**Multi-architecture builds**
-
-The newest images (Debian-based, *0.19+*) provide built-in support for multiple architectures. Running `docker pull` on any of the supported platforms will automatically choose the right image for you as all of the manifests and artifacts are pushed to the Docker registry.
-
-**Picking the right tag**
-
-- `bitcoin/bitcoin:latest`: points to the latest stable release available of Bitcoin Core. Caution when using in production as blindly upgrading Bitcoin Core is a risky procedure.
-- `bitcoin/bitcoin:alpine`: same as above but using the Alpine Linux distribution (a resource efficient Linux distribution with security in mind, but not officially supported by the Bitcoin Core team — use at your own risk).
-- `bitcoin/bitcoin:<version>`: based on a slim Debian image, this tag format points to a specific version branch (e.g. `0.20`) or release of Bitcoin Core (e.g. `0.20.1`). Uses the pre-compiled binaries which are distributed by the Bitcoin Core team.
-- `bitcoin/bitcoin:<version>-alpine`: same as above but using the Alpine Linux distribution.
-
-## What is Bitcoin Core?
-
-Bitcoin Core is a reference client that implements the Bitcoin protocol for remote procedure call (RPC) use. It is also the second Bitcoin client in the network's history. Learn more about Bitcoin Core on the [Bitcoin Developer Reference docs](https://bitcoin.org/en/developer-reference).
+- `bitcoin/bitcoin:latest`: this tag points to the latest stable release available of Bitcoin Core. Caution when using in production as blindly upgrading Bitcoin Core is a risky procedure.
+- `bitcoin/bitcoin:alpine`: this tag points to the same version as above (i.e. "latest") but using the Alpine Linux distribution (a resource efficient Linux distribution with security in mind, but not officially supported by the Bitcoin Core team — use at your own risk).
+- `bitcoin/bitcoin:<version>`: this tag format points to a specific release of Bitcoin Core (e.g. `27.0`).
+- `bitcoin/bitcoin:<version>-alpine`: same as above but using binaries compiled from source using the Alpine Linux distribution.
 
 ## Usage
 
-### How to use this image
+### How to use these images
 
 This image contains the main binaries from the Bitcoin Core project - `bitcoind`, `bitcoin-cli` and `bitcoin-tx`. It behaves like a binary, so you can pass any arguments to the image and they will be forwarded to the `bitcoind` binary:
 
@@ -80,7 +49,7 @@ This image contains the main binaries from the Bitcoin Core project - `bitcoind`
 
 _Note: [learn more](#using-rpcauth-for-remote-authentication) about how `-rpcauth` works for remote authentication._
 
-By default, `bitcoind` will run as user `bitcoin` in the group `bitcoin` for security reasons and with its default data dir set to `~/.bitcoin`. If you'd like to customize where `bitcoin` stores its data, you must use the `BITCOIN_DATA` environment variable. The directory will be automatically created with the correct permissions for the `bitcoin` user and `bitcoind` automatically configured to use it.
+By default, `bitcoind` will run as user `bitcoin` in the group `bitcoin` for security reasons and with its default data directory set to `~/.bitcoin`. If you'd like to customize where `bitcoin` stores its data, you must use the `BITCOIN_DATA` environment variable. The directory will be automatically created with the correct permissions for the `bitcoin` user and `bitcoind` automatically configured to use it.
 
 ```sh
 ❯ docker run --env BITCOIN_DATA=/var/lib/bitcoin-core --rm -it bitcoin/bitcoin \
@@ -110,7 +79,7 @@ bitcoin-core:
 
 By default, images are created with a `bitcoin` user/group using a static UID/GID (`101:101` on Debian and `100:101` on Alpine). You may customize the user and group ids using the build arguments `UID` (`--build-arg UID=<uid>`) and `GID` (`--build-arg GID=<gid>`).
 
-If you'd like to use the pre-built images, uou can also customize the UID/GID on runtime via environment variables `$UID` and `$GID`:
+If you'd like to use the pre-built images, you can also customize the UID/GID on runtime via environment variables `$UID` and `$GID`:
 
 ```sh
 ❯ docker run -e UID=10000 -e GID=10000 -it --rm bitcoin/bitcoin \
@@ -194,8 +163,6 @@ Two important notes:
 1. Some shells require escaping the rpcauth line (e.g. zsh), as shown above.
 2. It is now perfectly fine to pass the rpcauth line as a command line argument. Unlike `-rpcpassword`, the content is hashed so even if the arguments would be exposed, they would not allow the attacker to get the actual password.
 
-You can now connect via `bitcoin-cli` or any other [compatible client](https://github.com/ruimarinho/bitcoin-core). You will still have to define a username and password when connecting to the Bitcoin Core RPC server.
-
 To avoid any confusion about whether or not a remote call is being made, let's spin up another container to execute `bitcoin-cli` and connect it via the Docker network using the password generated above:
 
 ```sh
@@ -213,10 +180,6 @@ Enter the password `qDDZdeQ5vw9XXFeVnXT4PZ--tGN2xNjjR4nrtyszZx0=` and hit enter:
 ```
 0.00000000
 ```
-
-Note: under Bitcoin Core < 0.16, use `-rpcpassword="qDDZdeQ5vw9XXFeVnXT4PZ--tGN2xNjjR4nrtyszZx0="` instead of `-stdinrpcpass`.
-
-Done!
 
 ### Exposing Ports
 
@@ -263,25 +226,6 @@ curl --data-binary '{"jsonrpc":"1.0","id":"1","method":"getnetworkinfo","params"
 
 - JSON-RPC/REST: 38332
 - P2P: 38333
-
-## Archived tags
-
-_Please note that due to [CVE-2018-17144](https://nvd.nist.gov/vuln/detail/CVE-2018-17144), the following tags are unavailable: 0.14.0, 0.14.1, 0.14.2, 0.15.0, 0.15.0.1, 0.15.1, 0.16.0, 0.16.1 and 0.16.2._
-
-For historical reasons, the following tags are still available and automatically updated when the underlying base image (_Alpine Linux_ or _Debian stable_) is updated as well:
-
-- `0.13.2`, `0.13` ([0.13/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.13/Dockerfile))
-- `0.13.2-alpine`, `0.13-alpine` ([0.13/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.13/alpine/Dockerfile))
-
-- `0.12.1`, `0.12` ([0.12/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.12/Dockerfile))
-- `0.12.1-alpine`, `0.12-alpine` ([0.12/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.12/alpine/Dockerfile))
-
-- `0.11.2`, `0.11` ([0.11/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.11/Dockerfile))
-- `0.11.2-alpine`, `0.11-alpine` ([0.11/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/0.11/alpine/Dockerfile))
-
-## Docker
-
-This image is officially supported on Docker version 17.09, with support for older versions provided on a best-effort basis.
 
 ## License
 
