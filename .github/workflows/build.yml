@@ -13,12 +13,12 @@ jobs:
       max-parallel: ${{ github.event_name == 'pull_request' && 8 || 1 }}
       matrix:
         version:
-          - '25/alpine'
-          - '25'
-          - '26/alpine'
-          - '26'
-          - '27/alpine'
-          - '27'
+          - '25.2/alpine'
+          - '25.2'
+          - '26.1/alpine'
+          - '26.1'
+          - '27.0/alpine'
+          - '27.0'
       fail-fast: true
     steps:
       - name: Checkout
@@ -32,60 +32,99 @@ jobs:
         id: prepare
         run: |
           BITCOIN_VERSION=${{matrix.version}}
-          LATEST_BITCOIN_MAJOR_VERSION=$(find . -maxdepth 1 -type d -not -path '*/\.*' -not -path '*/deprecated' | sort -n | tail -n 1 | cut -c 3-)
+          echo "Processing: $BITCOIN_VERSION"
+
+          # Check if the version ends with /alpine
+          if [[ $BITCOIN_VERSION == */alpine ]]; then
+              ALPINE=true
+              BITCOIN_VERSION=${BITCOIN_VERSION%/alpine}
+          else
+              ALPINE=false
+          fi
+
+          # Check if the version contains rc*
+          if [[ $BITCOIN_VERSION == *rc* ]]; then
+              RC=$(echo "$BITCOIN_VERSION" | grep -oP 'rc\d+')
+              BITCOIN_VERSION=${BITCOIN_VERSION%rc*}
+          else
+              RC=""
+          fi
+
+          LATEST_BITCOIN_MAJOR_VERSION=$(find . -maxdepth 1 -type d -not -path '*/\.*' -not -path '*/deprecated' -not -name '*rc*' | sort -V | tail -n 1 | cut -c 3- )
           PLATFORMS="linux/amd64"
           PUSH=false
           REPO=bitcoin/bitcoin
           TAGS=()
-          DOCKERFILE_PATH="${{ github.workspace }}/$BITCOIN_VERSION/Dockerfile"
 
-          # Extract the Bitcoin version from the Dockerfile
-          DOCKERFILE_VERSION_LINE=$(grep 'ENV BITCOIN_VERSION=' "$DOCKERFILE_PATH")
-          EXTRACTED_VERSION=$(echo "$DOCKERFILE_VERSION_LINE" | grep -oP '(?<=ENV BITCOIN_VERSION=)[0-9]+\.[0-9]+(\.[0-9]+)?')
-
-          # Split the extracted version into major, minor, and patch variables
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$EXTRACTED_VERSION"
+          # Split the extracted version into major, minor and patch variables
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BITCOIN_VERSION"
 
           # Output the extracted version parts
-          echo "Extracted Bitcoin Version: $EXTRACTED_VERSION from dockerfile $DOCKERFILE_PATH"
           echo "Major Version: $MAJOR"
           echo "Minor Version: $MINOR"
           echo "Patch Version: ${PATCH:-0}"
+          echo "RC: $RC"
           echo "Latest major version: $LATEST_BITCOIN_MAJOR_VERSION"
 
           # Add primary tags
-          if [[ ${BITCOIN_VERSION} != *"alpine"* ]]; then
+          if ! $ALPINE; then
               # Non-alpine
-              TAGS=("$REPO:${MAJOR}")
-              TAGS+=("$REPO:${MAJOR}.${MINOR}")
-              if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
+              if [[ -n "$RC" ]]; then
+                  if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}.${RC}")
+                  else
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${RC}")
+                  fi
+              elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}")
+              else
+                  TAGS+=("$REPO:${MAJOR}.${MINOR}")
               fi
           else
-              # alpine
-              TAGS=("$REPO:${MAJOR}-alpine")
-              TAGS+=("$REPO:${MAJOR}.${MINOR}-alpine")
-              if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
+              # Alpine
+              if [[ -n "$RC" ]]; then
+                  if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}.${RC}-alpine")
+                  else
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${RC}-alpine")
+                  fi
+              elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}-alpine")
+              else
+                  TAGS+=("$REPO:${MAJOR}.${MINOR}-alpine")
               fi
           fi
 
-          # Add any "latest" tags
-          if [[ ${MAJOR} -ge ${LATEST_BITCOIN_MAJOR_VERSION} ]]; then
-          echo "Version ${MAJOR} is greater than or equal to ${LATEST_BITCOIN_MAJOR_VERSION}, tagging as latest"
-              if [[ ${BITCOIN_VERSION} != *"alpine"* ]]; then
-                TAGS+=("$REPO:latest")
+          # Create the stripped version including patch if it exists
+          if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
+              STRIPPED_VERSION="$MAJOR.$MINOR.$PATCH"
+          else
+              STRIPPED_VERSION="$MAJOR.$MINOR"
+          fi
+          echo "Stripped version: $STRIPPED_VERSION"
+
+          # Add any "latest" tags if not a release candidate
+          LATEST_MAJOR=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $1}')
+          LATEST_MINOR=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $2}')
+          LATEST_PATCH=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $3}')
+
+          if [[ -z "$RC" && ("$MAJOR" -gt "$LATEST_MAJOR" || ("$MAJOR" -eq "$LATEST_MAJOR" && "$MINOR" -gt "$LATEST_MINOR") || ("$MAJOR" -eq "$LATEST_MAJOR" && "$MINOR" -eq "$LATEST_MINOR" && "${PATCH:-0}" -ge "${LATEST_PATCH:-0}")) ]]; then
+              echo "Version ${MAJOR}.${MINOR}.${PATCH} is greater than or equal to ${LATEST_BITCOIN_MAJOR_VERSION}, tagging as latest/alpine"
+              if ! $ALPINE; then
+                  TAGS+=("$REPO:latest")
+                  TAGS+=("$REPO:${MAJOR}")
               else
-                TAGS+=("$REPO:alpine")
+                  TAGS+=("$REPO:alpine")
+                  TAGS+=("$REPO:${MAJOR}-alpine")
               fi
           fi
 
           if [[ $GITHUB_REF == "refs/heads/master" ]]; then
-          PUSH=true
+              PUSH=true
           fi
 
-          if [[ ${BITCOIN_VERSION} != *"alpine"* ]]; then
-            PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
+          if ! $ALPINE; then
+              PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
           fi
 
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
