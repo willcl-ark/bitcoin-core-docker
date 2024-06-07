@@ -16,7 +16,7 @@ RUN apk --no-cache add linux-headers
 RUN apk --no-cache add sqlite-dev
 RUN apk --no-cache add zeromq-dev
 
-ENV BITCOIN_VERSION=27.0
+ENV BITCOIN_VERSION=27.1rc1
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 ENV BITCOIN_SOURCE_DIR=/bitcoin/src
 ENV SIGS_REPO_URL="https://github.com/bitcoin-core/guix.sigs.git"
@@ -25,9 +25,17 @@ ENV VERIFY_SCRIPT_URL="https://github.com/bitcoin/bitcoin/raw/master/contrib/ver
 
 WORKDIR /bitcoin
 RUN set -ex \
-  && wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${BITCOIN_VERSION}.tar.gz \
-  && wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS \
-  && wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS.asc \
+  && if echo $BITCOIN_VERSION | grep -q "rc" ; then \
+       VERIFY_VERSION=$(echo $BITCOIN_VERSION | sed 's/\(.*\)rc\([0-9]*\)/\1-rc\2/'); \
+       ADDRESS="https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION%%rc*}/test.rc${BITCOIN_VERSION##*rc}"; \
+     else \
+       VERIFY_VERSION=$BITCOIN_VERSION; \
+       ADDRESS="https://bitcoincore.org/bin/bitcoin-core-${VERIFY_VERSION}"; \
+     fi \
+  && echo "$VERIFY_VERSION" \
+  && wget ${ADDRESS}/bitcoin-${BITCOIN_VERSION}.tar.gz \
+  && wget ${ADDRESS}/SHA256SUMS \
+  && wget ${ADDRESS}/SHA256SUMS.asc \
   && git clone ${SIGS_REPO_URL} ${SIGS_CLONE_DIR} \
   && gpg --import "${SIGS_CLONE_DIR}"/builder-keys/* \
   && wget -O verify.py ${VERIFY_SCRIPT_URL} \
@@ -77,12 +85,18 @@ RUN apk --no-cache add \
   su-exec
 
 ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
-ENV BITCOIN_VERSION=27.0
+ENV BITCOIN_VERSION=27.1rc1
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 ENV PATH=${BITCOIN_PREFIX}/bin:$PATH
 
 COPY --from=bitcoin-core /opt /opt
 COPY docker-entrypoint.sh /entrypoint.sh
+
+RUN if echo "$BITCOIN_VERSION" | grep -q "rc"; then \
+    PADDED_VERSION=$(echo $BITCOIN_VERSION | sed 's/\([0-9]\+\)\.\([0-9]\+\)rc/\1.\2.0rc/'); \
+  else \
+    PADDED_VERSION=$BITCOIN_VERSION; \
+  fi
 
 VOLUME ["/home/bitcoin/.bitcoin"]
 
@@ -90,6 +104,6 @@ EXPOSE 8332 8333 18332 18333 18444
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-RUN bitcoind -version | grep "Bitcoin Core version v${BITCOIN_VERSION}"
+RUN bitcoind -version | grep "Bitcoin Core version v${PADDED_VERSION}"
 
 CMD ["bitcoind"]
