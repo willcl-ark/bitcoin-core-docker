@@ -33,7 +33,7 @@ jobs:
         run: |
           BITCOIN_VERSION=${{matrix.version}}
           LATEST_BITCOIN_MAJOR_VERSION=$(find . -maxdepth 1 -type d -not -path '*/\.*' -not -path '*/deprecated' | sort -n | tail -n 1 | cut -c 3-)
-          PLATFORMS="linux/amd64"
+          PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
           PUSH=false
           REPO=bitcoin/bitcoin
           TAGS=()
@@ -82,10 +82,6 @@ jobs:
 
           if [[ $GITHUB_REF == "refs/heads/master" ]]; then
           PUSH=true
-          fi
-
-          if [[ ${BITCOIN_VERSION} != *"alpine"* ]]; then
-            PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
           fi
 
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
