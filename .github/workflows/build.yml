@@ -73,9 +73,9 @@ jobs:
               # Non-alpine
               if [[ -n "$RC" ]]; then
                   if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}.${RC}")
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}${RC}")
                   else
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${RC}")
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}${RC}")
                   fi
               elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}")
@@ -86,9 +86,9 @@ jobs:
               # Alpine
               if [[ -n "$RC" ]]; then
                   if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}.${RC}-alpine")
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}${RC}-alpine")
                   else
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${RC}-alpine")
+                      TAGS+=("$REPO:${MAJOR}.${MINOR}${RC}-alpine")
                   fi
               elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}-alpine")
