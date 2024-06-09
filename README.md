@@ -10,7 +10,7 @@ These images are built with support for the following platforms:
 |-----------------------------------------|----------------------------------------|
 | bitcoin/bitcoin:&lt;version&gt;         | linux/amd64, linux/arm64, linux/arm/v7 |
 | bitcoin/bitcoin:&lt;version&gt;-alpine; | linux/amd64                            |
-| bitcoin:master (alpine);                | linux/amd64                            |
+| bitcoin/bitcoin:master;                 | linux/amd64                            |
 
 The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
 
