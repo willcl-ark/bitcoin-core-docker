@@ -19,12 +19,14 @@ jobs:
         id: prepare
         run: |
           PLATFORMS="linux/amd64"
-          REPO=bitcoin/bitcoin
+          REPO="bitcoin/bitcoin"
+          BRANCH="master"
+
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
           echo "docker_platforms=${PLATFORMS}" | tee -a $GITHUB_OUTPUT
           echo "docker_username=bitcoin" | tee -a $GITHUB_OUTPUT
           echo "push=${PUSH}" | tee -a $GITHUB_OUTPUT
-          echo "tags=master" | tee -a $GITHUB_OUTPUT
+          echo "tags=${REPO}:${BRANCH}" | tee -a $GITHUB_OUTPUT
 
       - name: Login into Docker Hub
         uses: docker/login-action@v3
