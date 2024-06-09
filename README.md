@@ -6,25 +6,31 @@
 
 These images are built with support for the following platforms:
 
-| Image                               | Platforms                              |
-|-------------------------------------|----------------------------------------|
-| &lt;tag&gt;:&lt;version&gt;         | linux/amd64, linux/arm64, linux/arm/v7 |
-| &lt;tag&gt;:&lt;version&gt;-alpine; | linux/amd64                            |
+| Image                                   | Platforms                              |
+|-----------------------------------------|----------------------------------------|
+| bitcoin/bitcoin:&lt;version&gt;         | linux/amd64, linux/arm64, linux/arm/v7 |
+| bitcoin/bitcoin:&lt;version&gt;-alpine; | linux/amd64                            |
+| bitcoin:master (alpine);                | linux/amd64                            |
 
 The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
 
 The alpine images are built from source inside the CI.
 
+The nightly master image is currently alpine-based, source-built, and targeted at the linux/amd64 platform.
+
 ## Tags
 
-- `27.0`, `27`, `latest` ([27/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27/Dockerfile)) [**multi-platform**]
-- `27.0-alpine`, `27-alpine` ([27/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27/alpine/Dockerfile))
+- `27.0`, `27`, `latest` ([27.0/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.0/Dockerfile)) [**multi-platform**]
+- `27.0-alpine`, `27-alpine` ([27.0/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.0/alpine/Dockerfile))
 
-- `26.1`, `26`, `latest` ([26/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26/Dockerfile)) [**multi-platform**]
-- `26.1-alpine`, `26-alpine` ([26/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26/alpine/Dockerfile))
+- `26.1`, `26` ([26.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.1/Dockerfile)) [**multi-platform**]
+- `26.1-alpine`, `26-alpine` ([26.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.1/alpine/Dockerfile))
 
-- `25.2`, `25`, `latest` ([25/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25/Dockerfile)) [**multi-platform**]
-- `25.2-alpine`, `25-alpine` ([25/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25/alpine/Dockerfile))
+- `25.2`, `25` ([25.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/Dockerfile)) [**multi-platform**]
+- `25.2-alpine`, `25-alpine` ([25.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/alpine/Dockerfile))
+
+- `27.1rc1`, ([27.1rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1rc1/Dockerfile)) [**multi-platform**]
+- `27.1rc1-alpine`, ([27.1rc1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1rc1/alpine/Dockerfile))
 
 ### Picking the right tag
 
@@ -32,12 +38,13 @@ The alpine images are built from source inside the CI.
 - `bitcoin/bitcoin:alpine`: this tag points to the same version as above (i.e. "latest") but using the Alpine Linux distribution (a resource efficient Linux distribution with security in mind, but not officially supported by the Bitcoin Core team — use at your own risk).
 - `bitcoin/bitcoin:<version>`: this tag format points to a specific release of Bitcoin Core (e.g. `27.0`).
 - `bitcoin/bitcoin:<version>-alpine`: same as above but using binaries compiled from source using the Alpine Linux distribution.
+- `bitcoin/bitcoin:master`: This tag is built nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
 
 ## Usage
 
 ### How to use these images
 
-This image contains the main binaries from the Bitcoin Core project - `bitcoind`, `bitcoin-cli` and `bitcoin-tx`. It behaves like a binary, so you can pass any arguments to the image and they will be forwarded to the `bitcoind` binary:
+These images contain the main binaries from the Bitcoin Core project - `bitcoind`, `bitcoin-cli` and `bitcoin-tx`. The images behave like binaries, so you can pass arguments to the image and they will be forwarded to the `bitcoind` binary (by default, other binaries on demand):
 
 ```sh
 ❯ docker run --rm -it bitcoin/bitcoin \
@@ -49,7 +56,7 @@ This image contains the main binaries from the Bitcoin Core project - `bitcoind`
 
 _Note: [learn more](#using-rpcauth-for-remote-authentication) about how `-rpcauth` works for remote authentication._
 
-By default, `bitcoind` will run as user `bitcoin` in the group `bitcoin` for security reasons and with its default data directory set to `~/.bitcoin`. If you'd like to customize where `bitcoin` stores its data, you must use the `BITCOIN_DATA` environment variable. The directory will be automatically created with the correct permissions for the `bitcoin` user and `bitcoind` automatically configured to use it.
+By default, `bitcoind` will run as user `bitcoin` in the group `bitcoin` for security reasons and its default data directory is set to `/home/bitcoin/.bitcoin`. If you'd like to customize where `bitcoin` stores its data, you must use the `BITCOIN_DATA` environment variable. The directory will be automatically created with the correct permissions for the `bitcoin` user and `bitcoind` automatically configured to use it.
 
 ```sh
 ❯ docker run --env BITCOIN_DATA=/var/lib/bitcoin-core --rm -it bitcoin/bitcoin \
@@ -69,7 +76,7 @@ You can optionally create a service using `docker-compose`:
 
 ```yml
 bitcoin-core:
-  image: bitcoin/bitcoin
+  image: bitcoin/bitcoin:latest
   command:
     -printtoconsole
     -regtest=1
@@ -107,7 +114,7 @@ Start by launch the Bitcoin Core daemon:
   -regtest=1
 ```
 
-Then, inside the running `bitcoin-server` container, locally execute the query to the daemon using `bitcoin-cli`:
+Then, inside the running same `bitcoin-server` container, locally execute the query to the daemon using `bitcoin-cli`:
 
 ```sh
 ❯ docker exec --user bitcoin bitcoin-server bitcoin-cli -regtest getmininginfo
@@ -125,7 +132,7 @@ Then, inside the running `bitcoin-server` container, locally execute the query t
 }
 ```
 
-In the background, `bitcoin-cli` read the information automatically from `/home/bitcoin/.bitcoin/regtest/.cookie`. In production, the path would not contain the regtest part.
+`bitcoin-cli` reads the authentication credentials automatically from the [data directory](https://github.com/bitcoin/bitcoin/blob/master/doc/files.md#data-directory-layout), on mainnet this means from `/home/bitcoin/.bitcoin/.cookie`.
 
 #### Using rpcauth for remote authentication
 
@@ -160,7 +167,7 @@ Let's opt for the Docker way:
 
 Two important notes:
 
-1. Some shells require escaping the rpcauth line (e.g. zsh), as shown above.
+1. Some shells require escaping the rpcauth line (e.g. zsh).
 2. It is now perfectly fine to pass the rpcauth line as a command line argument. Unlike `-rpcpassword`, the content is hashed so even if the arguments would be exposed, they would not allow the attacker to get the actual password.
 
 To avoid any confusion about whether or not a remote call is being made, let's spin up another container to execute `bitcoin-cli` and connect it via the Docker network using the password generated above:
@@ -214,12 +221,12 @@ curl --data-binary '{"jsonrpc":"1.0","id":"1","method":"getnetworkinfo","params"
 
 #### Testnet
 
-- Testnet JSON-RPC: 18332
+- JSON-RPC: 18332
 - P2P: 18333
 
 #### Regtest
 
-- JSON-RPC/REST: 18443 (_since 0.16+_, otherwise _18332_)
+- JSON-RPC/REST: 18443
 - P2P: 18444
 
 #### Signet
