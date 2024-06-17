@@ -15,10 +15,8 @@ jobs:
           - '25.2'
           - '26.1/alpine'
           - '26.1'
-          - '27.0/alpine'
-          - '27.0'
-          - '27.1rc1/alpine'
-          - '27.1rc1'
+          - '27.1/alpine'
+          - '27.1'
       fail-fast: true
     steps:
       - name: Checkout
