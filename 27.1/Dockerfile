@@ -26,6 +26,8 @@ RUN set -ex \
   && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ]; then export TARGETPLATFORM=arm-linux-gnueabihf; fi \
   && git clone ${SIGS_REPO_URL} ${SIGS_CLONE_DIR} \
   && gpg --import "${SIGS_CLONE_DIR}"/builder-keys/* \
+  # WORKAROUND FOR 27.1 ONLY. BAD SIG IN SHASUMS.asc
+  && gpg --batch --yes --delete-key 0x476E74C8529A9006 \
   && curl -o verify.py ${VERIFY_SCRIPT_URL} \
   && chmod +x verify.py \
   && ./verify.py \
