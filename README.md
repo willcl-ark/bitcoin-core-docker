@@ -20,8 +20,8 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 
 ## Tags
 
-- `27.0`, `27`, `latest` ([27.0/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.0/Dockerfile)) [**multi-platform**]
-- `27.0-alpine`, `27-alpine` ([27.0/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.0/alpine/Dockerfile))
+- `27.1`, `27`, `latest` ([27.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/Dockerfile)) [**multi-platform**]
+- `27.1-alpine`, `27-alpine` ([27.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/alpine/Dockerfile))
 
 - `26.1`, `26` ([26.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.1/Dockerfile)) [**multi-platform**]
 - `26.1-alpine`, `26-alpine` ([26.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.1/alpine/Dockerfile))
@@ -29,14 +29,11 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 - `25.2`, `25` ([25.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/Dockerfile)) [**multi-platform**]
 - `25.2-alpine`, `25-alpine` ([25.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/alpine/Dockerfile))
 
-- `27.1rc1`, ([27.1rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1rc1/Dockerfile)) [**multi-platform**]
-- `27.1rc1-alpine`, ([27.1rc1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1rc1/alpine/Dockerfile))
-
 ### Picking the right tag
 
 - `bitcoin/bitcoin:latest`: this tag points to the latest stable release available of Bitcoin Core. Caution when using in production as blindly upgrading Bitcoin Core is a risky procedure.
 - `bitcoin/bitcoin:alpine`: this tag points to the same version as above (i.e. "latest") but using the Alpine Linux distribution (a resource efficient Linux distribution with security in mind, but not officially supported by the Bitcoin Core team — use at your own risk).
-- `bitcoin/bitcoin:<version>`: this tag format points to a specific release of Bitcoin Core (e.g. `27.0`).
+- `bitcoin/bitcoin:<version>`: this tag format points to a specific release of Bitcoin Core (e.g. `27.1`).
 - `bitcoin/bitcoin:<version>-alpine`: same as above but using binaries compiled from source using the Alpine Linux distribution.
 - `bitcoin/bitcoin:master`: This tag is built nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
 
