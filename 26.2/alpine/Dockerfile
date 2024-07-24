@@ -16,7 +16,7 @@ RUN apk --no-cache add linux-headers
 RUN apk --no-cache add sqlite-dev
 RUN apk --no-cache add zeromq-dev
 
-ENV BITCOIN_VERSION=26.2rc1
+ENV BITCOIN_VERSION=26.2
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 ENV BITCOIN_SOURCE_DIR=/bitcoin/src
 ENV SIGS_REPO_URL="https://github.com/bitcoin-core/guix.sigs.git"
@@ -85,7 +85,7 @@ RUN apk --no-cache add \
   su-exec
 
 ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
-ENV BITCOIN_VERSION=26.2rc1
+ENV BITCOIN_VERSION=26.2
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 ENV PATH=${BITCOIN_PREFIX}/bin:$PATH
 
