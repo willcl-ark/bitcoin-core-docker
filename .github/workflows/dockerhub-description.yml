@@ -1,0 +1,22 @@
+name: Update Docker Hub Description
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - README.md
+      - .github/workflows/dockerhub-description.yml
+jobs:
+  dockerHubDescription:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Docker Hub Description
+      uses: peter-evans/dockerhub-description@v4
+      with:
+        username: bitcoin
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        repository: bitcoin/bitcoin
+        short-description: A slim bitcoin-core image with Debian (amd64, arm32v7, arm64) and Alpine (amd64) variants.
+        enable-url-completion: true
