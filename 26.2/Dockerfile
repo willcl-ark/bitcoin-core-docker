@@ -8,7 +8,7 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG TARGETPLATFORM
-ENV BITCOIN_VERSION=26.2rc1
+ENV BITCOIN_VERSION=26.2
 ENV SIGS_REPO_URL="https://github.com/bitcoin-core/guix.sigs.git"
 ENV SIGS_CLONE_DIR="guix.sigs"
 ENV VERIFY_SCRIPT_URL="https://raw.githubusercontent.com/bitcoin/bitcoin/master/contrib/verify-binaries/verify.py"
@@ -42,7 +42,7 @@ ARG UID=101
 ARG GID=101
 
 ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
-ENV BITCOIN_VERSION=26.2rc1
+ENV BITCOIN_VERSION=26.2
 ENV PATH=/opt/bitcoin-${BITCOIN_VERSION}/bin:$PATH
 
 RUN groupadd --gid ${GID} bitcoin \
