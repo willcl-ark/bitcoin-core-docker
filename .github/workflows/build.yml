@@ -3,6 +3,10 @@ name: build
 on:
   workflow_dispatch:
   pull_request:
+    paths:
+      - '25.2/**'
+      - '26.2/**'
+      - '27.1/**'
 
 jobs:
   build:
