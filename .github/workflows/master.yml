@@ -3,6 +3,9 @@ name: nightly-master
 on:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    paths:
+      - 'master/Dockerfile'
 
 jobs:
   build:
@@ -21,6 +24,10 @@ jobs:
           PLATFORMS="linux/amd64"
           REPO="bitcoin/bitcoin"
           BRANCH="master"
+          PUSH="false"
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            PUSH="true"
+          fi
 
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
           echo "docker_platforms=${PLATFORMS}" | tee -a $GITHUB_OUTPUT
@@ -57,7 +64,7 @@ jobs:
             master/
 
           docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --output "type=image,push=true" \
+            --output "type=image,push=${{ steps.prepare.outputs.push }}" \
             --progress=plain \
             --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
             --build-arg "VCS_REF=${GITHUB_SHA::8}" \
