@@ -1,66 +1,53 @@
 # Build stage for Bitcoin Core
-FROM alpine as bitcoin-core
+FROM alpine:3.20 AS build
 
-RUN apk --no-cache add autoconf
-RUN apk --no-cache add automake
-RUN apk --no-cache add boost-dev
-RUN apk --no-cache add build-base
-RUN apk --no-cache add chrpath
-RUN apk --no-cache add file
-RUN apk --no-cache add gnupg
-RUN apk --no-cache add git
-RUN apk --no-cache add libevent-dev
-RUN apk --no-cache add libressl
-RUN apk --no-cache add libtool
-RUN apk --no-cache add linux-headers
-RUN apk --no-cache add sqlite-dev
-RUN apk --no-cache add zeromq-dev
+RUN apk --no-cache add \
+    boost-dev \
+    build-base \
+    chrpath \
+    cmake \
+    file \
+    gnupg \
+    git \
+    libevent-dev \
+    libressl \
+    libtool \
+    linux-headers \
+    sqlite-dev \
+    zeromq-dev
 
+ENV BITCOIN_PREFIX=/opt/bitcoin
 WORKDIR /src
 RUN git clone -b "master" --single-branch --depth 1 "https://github.com/bitcoin/bitcoin.git"
 WORKDIR /src/bitcoin
 
-RUN ./autogen.sh
-RUN ./configure \
-  --prefix=/opt/bitcoin \
-  --mandir=/usr/share/man \
-  --disable-tests \
-  --disable-bench \
-  --disable-fuzz-binary \
-  --disable-ccache \
-  --with-gui=no \
-  --with-utils \
-  --without-libs \
-  --with-sqlite=yes \
-  --with-daemon
-RUN make -j`nproc` -C src bitcoind bitcoin-cli bitcoin-tx
-RUN strip src/bitcoin-cli
-RUN strip src/bitcoin-tx
-RUN strip src/bitcoind
-RUN make install
+RUN cmake -B build -DBUILD_TESTS=OFF -DBUILD_UTIL=OFF -DBUILD_TX=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_CCACHE=OFF -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" && \
+    cmake --build build -j$(nproc) && \
+    strip build/src/bitcoin-cli build/src/bitcoin-tx build/src/bitcoind && \
+    cmake --install build
 
-# Build stage for compiled artifacts
-FROM alpine
+# Copy build artefacts
+FROM alpine:3.20
 
 ARG UID=100
 ARG GID=101
 
 LABEL maintainer.0="Will Clark (@willcl-ark)"
 
-RUN addgroup bitcoin --gid ${GID} --system
-RUN adduser --uid ${UID} --system bitcoin --ingroup bitcoin
+RUN addgroup --gid ${GID} --system bitcoin && \
+    adduser --uid ${UID} --system bitcoin --ingroup bitcoin
 RUN apk --no-cache add \
-  bash \
-  libevent \
-  libzmq \
-  shadow \
-  sqlite-dev \
-  su-exec
+    bash \
+    libevent \
+    libzmq \
+    shadow \
+    sqlite-dev \
+    su-exec
 
 ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
 ENV PATH=/opt/bin:$PATH
 
-COPY --from=bitcoin-core /opt/bitcoin /opt
+COPY --from=build /opt/bitcoin /opt
 COPY docker-entrypoint.sh /entrypoint.sh
 
 VOLUME ["/home/bitcoin/.bitcoin"]
