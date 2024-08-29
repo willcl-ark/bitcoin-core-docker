@@ -82,8 +82,10 @@ jobs:
                   fi
               elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}")
+                  TAGS+=("$REPO:${MAJOR}")
               else
                   TAGS+=("$REPO:${MAJOR}.${MINOR}")
+                  TAGS+=("$REPO:${MAJOR}")
               fi
           else
               # Alpine
@@ -95,8 +97,10 @@ jobs:
                   fi
               elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
                   TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}-alpine")
+                  TAGS+=("$REPO:${MAJOR}-alpine")
               else
                   TAGS+=("$REPO:${MAJOR}.${MINOR}-alpine")
+                  TAGS+=("$REPO:${MAJOR}-alpine")
               fi
           fi
 
