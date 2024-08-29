@@ -83,7 +83,7 @@ RUN apk --no-cache add \
   libevent \
   libzmq \
   shadow \
-  sqlite-dev \
+  sqlite-libs \
   su-exec
 
 ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
