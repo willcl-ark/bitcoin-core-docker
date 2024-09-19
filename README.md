@@ -20,8 +20,8 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 
 ## Tags
 
-- `28.0rc1`  ([28.0rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.0rc1/Dockerfile)) [**multi-platform**]
-- `28.0rc1-alpine` ([28.0rc1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.0rc1/alpine/Dockerfile))
+- `28.0rc2`  ([28.0rc2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.0rc2/Dockerfile)) [**multi-platform**]
+- `28.0rc2-alpine` ([28.0rc2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.0rc2/alpine/Dockerfile))
 
 - `27.1`, `27`, `latest` ([27.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/Dockerfile)) [**multi-platform**]
 - `27.1-alpine`, `27-alpine`, `alpine` ([27.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/alpine/Dockerfile))
