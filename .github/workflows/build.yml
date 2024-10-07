@@ -7,7 +7,7 @@ on:
       - '25.2/**'
       - '26.2/**'
       - '27.1/**'
-      - '28.0rc2/**'
+      - '28.0/**'
 
 jobs:
   build:
@@ -22,8 +22,8 @@ jobs:
           - '26.2'
           - '27.1/alpine'
           - '27.1'
-          - '28.0rc2/alpine'
-          - '28.0rc2'
+          - '28.0/alpine'
+          - '28.0'
       fail-fast: true
     steps:
       - name: Checkout
