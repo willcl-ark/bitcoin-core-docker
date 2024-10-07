@@ -29,9 +29,6 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 - `26.2`, `26`, ([26.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.2/Dockerfile)) [**multi-platform**]
 - `26.2-alpine`, `26-alpine` ([26.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.2/alpine/Dockerfile))
 
-- `25.2`, `25` ([25.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/Dockerfile)) [**multi-platform**]
-- `25.2-alpine`, `25-alpine` ([25.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/25.2/alpine/Dockerfile))
-
 ### Picking the right tag
 
 > [IMPORTANT]

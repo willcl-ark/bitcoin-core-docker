@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '25.2/**'
       - '26.2/**'
       - '27.1/**'
       - '28.0/**'
@@ -16,8 +15,6 @@ jobs:
       max-parallel: ${{ github.event_name == 'pull_request' && 8 || 1 }}
       matrix:
         version:
-          - '25.2/alpine'
-          - '25.2'
           - '26.2/alpine'
           - '26.2'
           - '27.1/alpine'
