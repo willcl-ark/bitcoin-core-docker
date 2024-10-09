@@ -6,10 +6,18 @@ on:
   push:
     paths:
       - 'master/Dockerfile'
+      - 'master/alpine/Dockerfile'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - type: ""
+            suffix: ""
+          - type: "-alpine"
+            suffix: "/alpine"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,7 +41,7 @@ jobs:
           echo "docker_platforms=${PLATFORMS}" | tee -a $GITHUB_OUTPUT
           echo "docker_username=bitcoin" | tee -a $GITHUB_OUTPUT
           echo "push=${PUSH}" | tee -a $GITHUB_OUTPUT
-          echo "tags=${REPO}:${BRANCH}" | tee -a $GITHUB_OUTPUT
+          echo "tags=${REPO}:nightly${{ matrix.type }}" | tee -a $GITHUB_OUTPUT
 
       - name: Login into Docker Hub
         uses: docker/login-action@v3
@@ -55,18 +63,10 @@ jobs:
           echo "Push: ${{ steps.prepare.outputs.push }}"
           echo "Tags: ${{ steps.prepare.outputs.tags }}"
 
-          echo docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --output "type=image,push=true" \
-            --progress=plain \
-            --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
-            --build-arg "VCS_REF=${GITHUB_SHA::8}" \
-            $(printf "%s" "${TAGS[@]/#/ --tag }" ) \
-            master/
-
           docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=${{ steps.prepare.outputs.push }}" \
             --progress=plain \
             --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
             --build-arg "VCS_REF=${GITHUB_SHA::8}" \
             $(printf "%s" "${TAGS[@]/#/ --tag }" ) \
-            master/
+            master${{ matrix.suffix }}
