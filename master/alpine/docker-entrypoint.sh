@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 if [ -n "${UID+x}" ] && [ "${UID}" != "0" ]; then
@@ -32,7 +32,7 @@ fi
 
 if [ "$1" = "bitcoind" ] || [ "$1" = "bitcoin-cli" ] || [ "$1" = "bitcoin-tx" ]; then
   echo
-  exec gosu bitcoin "$@"
+  exec su-exec bitcoin "$@"
 fi
 
 echo

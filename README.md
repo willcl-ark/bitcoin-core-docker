@@ -8,9 +8,12 @@ These images are built with support for the following platforms:
 
 | Image                              | Platforms                              |
 |------------------------------------|----------------------------------------|
+| `bitcoin/bitcoin:latest`           | linux/amd64, linux/arm64, linux/arm/v7 |
+| `bitcoin/bitcoin:alpine`           | linux/amd64                            |
 | `bitcoin/bitcoin:<version>`        | linux/amd64, linux/arm64, linux/arm/v7 |
 | `bitcoin/bitcoin:<version>-alpine` | linux/amd64                            |
-| `bitcoin/bitcoin:master`           | linux/amd64                            |
+| `bitcoin/bitcoin:nightly`          | linux/amd64, linux/arm64               |
+| `bitcoin/bitcoin:nightly-alpine`   | linux/amd64, linux/arm64               |
 
 The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
 
@@ -34,25 +37,26 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 > [IMPORTANT]
 > The Alpine Linux distribution, whilst being a resource efficient Linux distribution with security in mind, is not officially supported by the Bitcoin Core team — use at your own risk.
 
-#### Latest version
+#### Latest released version
 
 These tags refer to the latest major version, and the latest minor and patch of this version where applicable.
 
 - `bitcoin/bitcoin:latest`: Release binaries directly from bitcoincore.org. Caution when specifying this tag in production as blindly upgrading Bitcoin Core major versions can introduce new behaviours.
 - `bitcoin/bitcoin:alpine`: Source-built binaries using the Alpine Linux distribution.
 
-#### Specific version
+#### Specific released version
 
 These tags refer to a specific version of Bitcoin Core.
 
 - `bitcoin/bitcoin:<version>`: Release binaries of a specific release directly from bitcoincore.org (e.g. `27.1` or `26`).
 - `bitcoin/bitcoin:<version>-alpine`: Source-built binaries of a specific release of Bitcoin Core (e.g. `27.1` or `26`) using the Alpine Linux distribution.
 
-#### Nightly master
+#### Nightly master build
 
 This tag refers to a nightly build of https://github.com/bitcoin/bitcoin master branch using Alpine Linux.
 
-- `bitcoin/bitcoin:master`: Source-built binaries on Alpine Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
+- `bitcoin/bitcoin:nightly`: Source-built binaries on Debian Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
+- `bitcoin/bitcoin:nightly-alpine`: Source-built binaries on Alpine Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
 
 ## Usage
 
