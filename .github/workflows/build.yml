@@ -6,8 +6,7 @@ on:
     paths:
       - '26.2/**'
       - '27.1/**'
-      - '28.0/**'
-      - '28.1rc1/**'
+      - '28.1/**'
 
 jobs:
   build:
@@ -20,10 +19,8 @@ jobs:
           - '26.2'
           - '27.1/alpine'
           - '27.1'
-          - '28.0/alpine'
-          - '28.0'
-          - '28.1rc1/alpine'
-          - '28.1rc1'
+          - '28.1/alpine'
+          - '28.1'
       fail-fast: true
     steps:
       - name: Checkout
