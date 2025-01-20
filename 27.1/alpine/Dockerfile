@@ -38,8 +38,6 @@ RUN set -ex \
   && wget ${ADDRESS}/SHA256SUMS.asc \
   && git clone ${SIGS_REPO_URL} ${SIGS_CLONE_DIR} \
   && gpg --import "${SIGS_CLONE_DIR}"/builder-keys/* \
-  # WORKAROUND FOR 27.1 ONLY. BAD SIG IN SHASUMS.asc
-  && gpg --batch --yes --delete-key 0x476E74C8529A9006 \
   && wget -O verify.py ${VERIFY_SCRIPT_URL} \
   && chmod +x verify.py \
   && ./verify.py bin SHA256SUMS \
