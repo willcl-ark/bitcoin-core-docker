@@ -4,22 +4,25 @@
 
 ## About the images
 
-These images are built with support for the following platforms:
+> [!IMPORTANT]
+> These are **unofficial** Bitcoin Core images, not endorsed or associated with the Bitcoin Core project on Github: github.com/bitcoin/bitcoin
 
-| Image                              | Platforms                              |
-|------------------------------------|----------------------------------------|
-| `bitcoin/bitcoin:latest`           | linux/amd64, linux/arm64, linux/arm/v7 |
-| `bitcoin/bitcoin:alpine`           | linux/amd64                            |
-| `bitcoin/bitcoin:<version>`        | linux/amd64, linux/arm64, linux/arm/v7 |
-| `bitcoin/bitcoin:<version>-alpine` | linux/amd64                            |
-| `bitcoin/bitcoin:nightly`          | linux/amd64, linux/arm64               |
-| `bitcoin/bitcoin:nightly-alpine`   | linux/amd64, linux/arm64               |
+- The images are aimed at testing environments (e.g. for downstream or bitcoin-adjacent projects), as it is non-trivial to verify the authenticity of the bitcoin core binaries inside.
+  - When using Bitcoin Core software for non-testing purposes you should always ensure that you have either: i) built it from source yourself, or ii) verfied your binary download (see [this page](https://bitcoincore.org/en/download/) for more information on how to do this).
+- The images are built using CI workflows found in this repo: https://github.com/willcl-ark/bitcoin-core-docker
+- The images are built with support for the following platforms:
+  | Image                              | Platforms                              |
+  |------------------------------------|----------------------------------------|
+  | `bitcoin/bitcoin:latest`           | linux/amd64, linux/arm64, linux/arm/v7 |
+  | `bitcoin/bitcoin:alpine`           | linux/amd64                            |
+  | `bitcoin/bitcoin:<version>`        | linux/amd64, linux/arm64, linux/arm/v7 |
+  | `bitcoin/bitcoin:<version>-alpine` | linux/amd64                            |
+  | `bitcoin/bitcoin:nightly`          | linux/amd64, linux/arm64               |
+  | `bitcoin/bitcoin:nightly-alpine`   | linux/amd64, linux/arm64               |
 
-The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
-
-The alpine images are built from source inside the CI.
-
-The nightly master image is currently alpine-based, source-built, and targeted at the linux/amd64 platform.
+- The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
+- The alpine images are built from source inside the CI.
+- The nightly master image is source-built, and targeted at the linux/amd64 and linux/arm64 platforms.
 
 ## Tags
 
@@ -34,7 +37,7 @@ The nightly master image is currently alpine-based, source-built, and targeted a
 
 ### Picking the right tag
 
-> [IMPORTANT]
+> [!IMPORTANT]
 > The Alpine Linux distribution, whilst being a resource efficient Linux distribution with security in mind, is not officially supported by the Bitcoin Core team — use at your own risk.
 
 #### Latest released version
