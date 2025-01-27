@@ -1,5 +1,5 @@
 # Build stage for Bitcoin Core
-FROM alpine:3.20 AS build
+FROM alpine:3.21 AS build
 
 RUN apk --no-cache add \
     boost-dev \
@@ -36,7 +36,7 @@ RUN cmake -B build \
     cmake --install build
 
 # Copy build artefacts
-FROM alpine:3.20
+FROM alpine:3.21
 
 ARG UID=100
 ARG GID=101
