@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
+        platform: [linux/amd64, linux/arm64]
+        variant:
           - type: ""
             suffix: ""
           - type: "-alpine"
@@ -25,11 +26,19 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.platform }}-${{ matrix.variant.type }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.platform }}-${{ matrix.variant.type }}-
 
       - name: Prepare Docker build
         id: prepare
         run: |
-          PLATFORMS="linux/amd64,linux/arm64"
           REPO="bitcoin/bitcoin"
           BRANCH="master"
           PUSH="false"
@@ -38,10 +47,10 @@ jobs:
           fi
 
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
-          echo "docker_platforms=${PLATFORMS}" | tee -a $GITHUB_OUTPUT
+          echo "docker_platforms=${{ matrix.platform }}" | tee -a $GITHUB_OUTPUT
           echo "docker_username=bitcoin" | tee -a $GITHUB_OUTPUT
           echo "push=${PUSH}" | tee -a $GITHUB_OUTPUT
-          echo "tags=${REPO}:nightly${{ matrix.type }}" | tee -a $GITHUB_OUTPUT
+          echo "tags=${REPO}:nightly${{ matrix.variant.type }}" | tee -a $GITHUB_OUTPUT
 
       - name: Login into Docker Hub
         uses: docker/login-action@v3
@@ -66,7 +75,15 @@ jobs:
           docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=${{ steps.prepare.outputs.push }}" \
             --progress=plain \
+            --cache-from "type=local,src=/tmp/.buildx-cache" \
+            --cache-to "type=local,dest=/tmp/.buildx-cache-new,mode=max" \
             --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
             --build-arg "VCS_REF=${GITHUB_SHA::8}" \
             $(printf "%s" "${TAGS[@]/#/ --tag }" ) \
-            master${{ matrix.suffix }}
+            master${{ matrix.variant.suffix }}
+
+          # Temp fix
+          # https://github.com/docker/build-push-action/issues/252
+          # https://github.com/moby/buildkit/issues/1896
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

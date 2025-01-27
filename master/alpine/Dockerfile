@@ -4,6 +4,7 @@ FROM alpine:3.20 AS build
 RUN apk --no-cache add \
     boost-dev \
     build-base \
+    ccache \
     chrpath \
     cmake \
     file \
@@ -21,7 +22,15 @@ WORKDIR /src
 RUN git clone -b "master" --single-branch --depth 1 "https://github.com/bitcoin/bitcoin.git"
 WORKDIR /src/bitcoin
 
-RUN cmake -B build -DBUILD_TESTS=OFF -DBUILD_UTIL=OFF -DBUILD_TX=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_CCACHE=OFF -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" && \
+RUN cmake -B build \
+    -DBUILD_TESTS=OFF \
+    -DBUILD_TX=ON \
+    -DBUILD_UTIL=OFF \
+    -DCMAKE_BUILD_TYPE=MinSizeRel \
+    -DCMAKE_CXX_FLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" \
+    -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g0" \
+    -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
+    -DWITH_CCACHE=ON && \
     cmake --build build -j$(nproc) && \
     strip build/src/bitcoin-cli build/src/bitcoin-tx build/src/bitcoind && \
     cmake --install build
