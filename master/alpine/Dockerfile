@@ -6,6 +6,7 @@ RUN apk --no-cache add \
     build-base \
     ccache \
     chrpath \
+    clang18 \
     cmake \
     file \
     gnupg \
@@ -26,9 +27,9 @@ RUN cmake -B build \
     -DBUILD_TESTS=OFF \
     -DBUILD_TX=ON \
     -DBUILD_UTIL=OFF \
-    -DCMAKE_BUILD_TYPE=MinSizeRel \
-    -DCMAKE_CXX_FLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" \
-    -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g0" \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_CXX_COMPILER=clang++-18 \
+    -DCMAKE_C_COMPILER=clang-18 \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON && \
     cmake --build build -j$(nproc) && \
