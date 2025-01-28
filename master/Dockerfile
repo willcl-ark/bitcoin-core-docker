@@ -3,7 +3,21 @@ FROM debian:bookworm-slim AS build
 LABEL maintainer.0="Will Clark (@willcl-ark)"
 
 RUN apt-get update -y \
-  && apt-get install -y build-essential git ca-certificates cmake pkg-config python3 libevent-dev libboost-dev libsqlite3-dev libzmq3-dev systemtap-sdt-dev --no-install-recommends \
+  && apt-get install -y \
+    build-essential \
+    ca-certificates \
+    ccache \
+    clang-16 \
+    cmake \
+    git \
+    libboost-dev \
+    libevent-dev \
+    libsqlite3-dev \
+    libzmq3-dev \
+    pkg-config \
+    python3 \
+    systemtap-sdt-dev \
+    --no-install-recommends \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -13,7 +27,15 @@ RUN git clone -b "master" --single-branch --depth 1 "https://github.com/bitcoin/
 WORKDIR /src/bitcoin
 
 RUN set -ex \
-  && cmake -B build -DBUILD_TESTS=OFF -DBUILD_UTIL=OFF -DBUILD_TX=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_CCACHE=OFF -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
+  && cmake -B build \
+    -DBUILD_TESTS=OFF \
+    -DBUILD_TX=ON \
+    -DBUILD_UTIL=OFF \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_CXX_COMPILER=clang++-16 \
+    -DCMAKE_C_COMPILER=clang-16 \
+    -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
+    -DWITH_CCACHE=ON \
   && cmake --build build -j$(nproc) \
   && strip build/src/bitcoin-cli build/src/bitcoin-tx build/src/bitcoind \
   && cmake --install build

@@ -1,10 +1,12 @@
 # Build stage for Bitcoin Core
-FROM alpine:3.20 AS build
+FROM alpine:3.21 AS build
 
 RUN apk --no-cache add \
     boost-dev \
     build-base \
+    ccache \
     chrpath \
+    clang18 \
     cmake \
     file \
     gnupg \
@@ -21,13 +23,21 @@ WORKDIR /src
 RUN git clone -b "master" --single-branch --depth 1 "https://github.com/bitcoin/bitcoin.git"
 WORKDIR /src/bitcoin
 
-RUN cmake -B build -DBUILD_TESTS=OFF -DBUILD_UTIL=OFF -DBUILD_TX=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_CCACHE=OFF -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" && \
+RUN cmake -B build \
+    -DBUILD_TESTS=OFF \
+    -DBUILD_TX=ON \
+    -DBUILD_UTIL=OFF \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_CXX_COMPILER=clang++-18 \
+    -DCMAKE_C_COMPILER=clang-18 \
+    -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
+    -DWITH_CCACHE=ON && \
     cmake --build build -j$(nproc) && \
     strip build/src/bitcoin-cli build/src/bitcoin-tx build/src/bitcoind && \
     cmake --install build
 
 # Copy build artefacts
-FROM alpine:3.20
+FROM alpine:3.21
 
 ARG UID=100
 ARG GID=101
