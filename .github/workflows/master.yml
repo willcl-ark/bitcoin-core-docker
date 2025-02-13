@@ -50,7 +50,7 @@ jobs:
           echo "docker_platforms=${{ matrix.platform }}" | tee -a $GITHUB_OUTPUT
           echo "docker_username=bitcoin" | tee -a $GITHUB_OUTPUT
           echo "push=${PUSH}" | tee -a $GITHUB_OUTPUT
-          echo "tags=${REPO}:nightly${{ matrix.variant.type }}" | tee -a $GITHUB_OUTPUT
+          echo "tags=${REPO}:nightly${{ matrix.variant.type }},${REPO}:master${{ matrix.variant.type }}" | tee -a $GITHUB_OUTPUT
 
       - name: Login into Docker Hub
         uses: docker/login-action@v3
