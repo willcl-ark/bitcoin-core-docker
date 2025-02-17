@@ -17,8 +17,8 @@
   | `bitcoin/bitcoin:alpine`           | linux/amd64                            |
   | `bitcoin/bitcoin:<version>`        | linux/amd64, linux/arm64, linux/arm/v7 |
   | `bitcoin/bitcoin:<version>-alpine` | linux/amd64                            |
-  | `bitcoin/bitcoin:nightly`          | linux/amd64, linux/arm64               |
-  | `bitcoin/bitcoin:nightly-alpine`   | linux/amd64, linux/arm64               |
+  | `bitcoin/bitcoin:master`           | linux/amd64, linux/arm64               |
+  | `bitcoin/bitcoin:master-alpine`    | linux/amd64, linux/arm64               |
 
 - The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
 - The alpine images are built from source inside the CI.
@@ -58,8 +58,8 @@ These tags refer to a specific version of Bitcoin Core.
 
 This tag refers to a nightly build of https://github.com/bitcoin/bitcoin master branch using Alpine Linux.
 
-- `bitcoin/bitcoin:nightly`: Source-built binaries on Debian Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
-- `bitcoin/bitcoin:nightly-alpine`: Source-built binaries on Alpine Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
+- `bitcoin/bitcoin:master`: Source-built binaries on Debian Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
+- `bitcoin/bitcoin:master-alpine`: Source-built binaries on Alpine Linux, compiled nightly using master branch pulled from https://github.com/bitcoin/bitcoin.
 
 ## Usage
 
