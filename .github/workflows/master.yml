@@ -1,9 +1,5 @@
 name: nightly-master
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 on:
   schedule:
     - cron: "0 0 * * *"
@@ -12,24 +8,25 @@ on:
       - 'master/Dockerfile'
       - 'master/alpine/Dockerfile'
 
+env:
+  PLATFORMS: linux/amd64,linux/arm64
+
 jobs:
   build:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform:
-          - docker: linux/amd64
-            runner: ubuntu-24.04
-          - docker: linux/arm64
-            runner: ubuntu-24.04-arm
         variant:
           - type: ""
             suffix: ""
           - type: "-alpine"
             suffix: "/alpine"
-    runs-on: ${{ matrix.platform.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -51,7 +48,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: master${{ matrix.variant.suffix }}
-          platforms: ${{ matrix.platform.docker }}
+          platforms: ${{ env.PLATFORMS }}
           push: ${{ github.event_name == 'schedule' }}
           tags: bitcoin/bitcoin:master${{ matrix.variant.type }}
           cache-from: type=gha
