@@ -22,8 +22,16 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV BITCOIN_PREFIX=/opt/bitcoin
+ARG COMMIT=master
+
 WORKDIR /src
-RUN git clone -b "master" --single-branch --depth 1 "https://github.com/bitcoin/bitcoin.git"
+
+RUN git clone -b "$COMMIT" --single-branch --depth 1 "https://github.com/bitcoin/bitcoin.git" && \
+    cd bitcoin && \
+    git fetch origin "$COMMIT" && \
+    git checkout "$COMMIT" && \
+    git clean -fdx
+
 WORKDIR /src/bitcoin
 
 RUN set -ex \
@@ -37,7 +45,7 @@ RUN set -ex \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON \
   && cmake --build build -j$(nproc) \
-  && strip build/src/bitcoin-cli build/src/bitcoin-tx build/src/bitcoind \
+  && strip build/bin/bitcoin-cli build/bin/bitcoin-tx build/bin/bitcoind \
   && cmake --install build
 
 # Second stage
