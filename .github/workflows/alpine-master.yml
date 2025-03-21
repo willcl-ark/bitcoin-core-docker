@@ -3,6 +3,10 @@ name: alpine-nightly-master
 on:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    paths:
+      - 'master/alpine/Dockerfile'
+      - 'master/alpine/docker-entrypoint.sh'
 
 env:
   REGISTRY_IMAGE: bitcoin/bitcoin
@@ -65,6 +69,10 @@ jobs:
             VCS_REF=${{ github.sha }}
           outputs: type=image,push-by-digest=true,name-canonical=true
 
+      - name: Test bitcoind
+        run: |
+          docker run --rm --platform ${{ matrix.platform.docker }} ${{ steps.build.outputs.imageid }} bitcoind --version
+
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
@@ -108,10 +116,16 @@ jobs:
             type=raw,value=${{ env.TAGS }}
 
       - name: Create manifest list and push
+        if: github.event_name == 'schedule'
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+
+      - name: Test bitcoind (pulled image)
+        if: github.event_name == 'schedule'
+        run: |
+          docker run --rm ${{ env.REGISTRY_IMAGE }}:${{ env.TAGS }} bitcoind --version
 
       - name: Inspect image
         run: |
