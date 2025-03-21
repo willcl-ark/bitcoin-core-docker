@@ -9,9 +9,10 @@ on:
       - 'master/alpine/docker-entrypoint.sh'
 
 env:
+  CONTEXT: master/alpine
   REGISTRY_IMAGE: bitcoin/bitcoin
   TAGS: master-alpine
-  CONTEXT: master/alpine
+  TEST_TAG: master-test-alpine
 
 jobs:
   build:
@@ -53,6 +54,19 @@ jobs:
         with:
           create-symlink: true
 
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: ${{ env.CONTEXT }}
+          load: true
+          tags: ${{ env.TEST_TAG }}
+
+      - name: Test
+        run: |
+          docker run --rm ${{ env.TEST_TAG }} bitcoind --version
+
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v6
@@ -68,10 +82,6 @@ jobs:
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
           outputs: type=image,push-by-digest=true,name-canonical=true
-
-      - name: Test bitcoind
-        run: |
-          docker run --rm --platform ${{ matrix.platform.docker }} ${{ steps.build.outputs.imageid }} bitcoind --version
 
       - name: Export digest
         run: |
