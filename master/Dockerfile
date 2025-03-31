@@ -30,7 +30,8 @@ RUN git clone -b "$COMMIT" --single-branch --depth 1 "https://github.com/bitcoin
     cd bitcoin && \
     git fetch origin "$COMMIT" && \
     git checkout "$COMMIT" && \
-    git clean -fdx
+    git clean -fdx && \
+    git rev-parse HEAD > /src/bitcoin_commit.hash
 
 WORKDIR /src/bitcoin
 
@@ -64,6 +65,7 @@ RUN groupadd --gid ${GID} bitcoin \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=build /opt/bitcoin /opt
+COPY --from=build /src/bitcoin_commit.hash /opt/bitcoin_commit.hash
 ENV PATH=/opt/bin:$PATH
 
 COPY docker-entrypoint.sh /entrypoint.sh
