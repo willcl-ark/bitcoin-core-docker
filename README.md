@@ -35,9 +35,6 @@
 - `27.1`, `27` ([27.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/Dockerfile)) [**multi-platform**]
 - `27.1-alpine`, `27-alpine` ([27.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.1/alpine/Dockerfile))
 
-- `26.2`, `26`, ([26.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.2/Dockerfile)) [**multi-platform**]
-- `26.2-alpine`, `26-alpine` ([26.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/26.2/alpine/Dockerfile))
-
 ### Picking the right tag
 
 > [!IMPORTANT]
