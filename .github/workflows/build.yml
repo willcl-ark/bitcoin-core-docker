@@ -15,10 +15,6 @@ jobs:
       max-parallel: ${{ github.event_name == 'pull_request' && 8 || 1 }}
       matrix:
         version:
-          - '27.1/alpine'
-          - '27.1'
-          - '28.1/alpine'
-          - '28.1'
           - '29.0/alpine'
           - '29.0'
       fail-fast: true
