@@ -4,10 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '26.2/**'
       - '27.1/**'
       - '28.1/**'
-      - '29.0rc2/**'
+      - '29.0/**'
 
 jobs:
   build:
@@ -16,14 +15,8 @@ jobs:
       max-parallel: ${{ github.event_name == 'pull_request' && 8 || 1 }}
       matrix:
         version:
-          - '26.2/alpine'
-          - '26.2'
-          - '27.1/alpine'
-          - '27.1'
-          - '28.1/alpine'
-          - '28.1'
-          - '29.0rc2/alpine'
-          - '29.0rc2'
+          - '29.0/alpine'
+          - '29.0'
       fail-fast: true
     steps:
       - name: Checkout
