@@ -63,9 +63,12 @@ jobs:
           load: true
           tags: ${{ env.TEST_TAG }}
 
-      - name: Test
+      - name: Test and extract Bitcoin commit hash
         run: |
           docker run --rm ${{ env.TEST_TAG }} bitcoind --version
+          BITCOIN_COMMIT=$(docker run --rm ${{ env.TEST_TAG }} cat /opt/bitcoin_commit.hash)
+          echo "BITCOIN_COMMIT=${BITCOIN_COMMIT}" >> $GITHUB_ENV
+          echo "Bitcoin commit used in build: ${BITCOIN_COMMIT}"
 
       - name: Build and push Docker image
         id: build
@@ -80,7 +83,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
-            VCS_REF=${{ github.sha }}
+            VCS_REF=${{ env.BITCOIN_COMMIT }}
           outputs: type=image,push-by-digest=true,name-canonical=true
 
       - name: Export digest
