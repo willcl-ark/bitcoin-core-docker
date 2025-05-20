@@ -1,20 +1,20 @@
 # Build stage for Bitcoin Core
 FROM alpine as bitcoin-core
 
-RUN apk --no-cache add autoconf
-RUN apk --no-cache add automake
-RUN apk --no-cache add boost-dev
-RUN apk --no-cache add build-base
-RUN apk --no-cache add chrpath
-RUN apk --no-cache add file
-RUN apk --no-cache add gnupg
-RUN apk --no-cache add git
-RUN apk --no-cache add libevent-dev
-RUN apk --no-cache add libressl
-RUN apk --no-cache add libtool
-RUN apk --no-cache add linux-headers
-RUN apk --no-cache add sqlite-dev
-RUN apk --no-cache add zeromq-dev
+RUN apk --no-cache add \
+  autoconf \
+  automake \
+  boost-dev \
+  build-base \
+  chrpath \
+  file \
+  gnupg \
+  git \
+  libevent-dev \
+  libtool \
+  linux-headers \
+  sqlite-dev \
+  zeromq-dev
 
 ENV BITCOIN_VERSION=28.1
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}

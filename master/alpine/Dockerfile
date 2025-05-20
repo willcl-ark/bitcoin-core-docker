@@ -12,8 +12,6 @@ RUN apk --no-cache add \
     gnupg \
     git \
     libevent-dev \
-    libressl \
-    libtool \
     linux-headers \
     sqlite-dev \
     zeromq-dev
