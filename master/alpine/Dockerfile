@@ -4,6 +4,8 @@ FROM alpine:3.21 AS build
 RUN apk --no-cache add \
     boost-dev \
     build-base \
+    capnproto \
+    capnproto-dev \
     ccache \
     chrpath \
     clang18 \
@@ -53,6 +55,7 @@ RUN addgroup --gid ${GID} --system bitcoin && \
     adduser --uid ${UID} --system bitcoin --ingroup bitcoin
 RUN apk --no-cache add \
     bash \
+    capnproto \
     libevent \
     libzmq \
     shadow \
