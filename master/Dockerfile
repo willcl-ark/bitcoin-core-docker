@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS build
+FROM debian:trixie-slim AS build
 
 LABEL maintainer.0="Will Clark (@willcl-ark)"
 
@@ -7,7 +7,7 @@ RUN apt-get update -y \
     build-essential \
     ca-certificates \
     ccache \
-    clang-16 \
+    clang-19 \
     cmake \
     git \
     libboost-dev \
@@ -40,8 +40,8 @@ RUN set -ex \
     -DBUILD_TX=ON \
     -DBUILD_UTIL=OFF \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DCMAKE_CXX_COMPILER=clang++-16 \
-    -DCMAKE_C_COMPILER=clang-16 \
+    -DCMAKE_CXX_COMPILER=clang++-19 \
+    -DCMAKE_C_COMPILER=clang-19 \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON \
   && cmake --build build -j$(nproc) \
@@ -49,7 +49,7 @@ RUN set -ex \
   && cmake --install build
 
 # Second stage
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 ARG UID=101
 ARG GID=101
