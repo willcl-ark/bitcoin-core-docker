@@ -40,8 +40,7 @@ RUN cmake -B build \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON && \
     cmake --build build -j$(nproc) && \
-    strip build/bin/bitcoin-cli build/bin/bitcoin-tx build/bin/bitcoind && \
-    cmake --install build
+    cmake --install build --strip
 
 # Copy build artefacts
 FROM alpine:3.22
