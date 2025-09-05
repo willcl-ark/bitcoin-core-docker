@@ -55,7 +55,6 @@ RUN addgroup --gid ${GID} --system bitcoin && \
     adduser --uid ${UID} --system bitcoin --ingroup bitcoin
 RUN apk --no-cache add \
     bash \
-    capnproto \
     libevent \
     libzmq \
     shadow \
