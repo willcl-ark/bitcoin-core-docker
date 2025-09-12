@@ -25,6 +25,9 @@
 - The nightly master image is source-built, and targeted at the linux/amd64 and linux/arm64 platforms.
 
 ## Tags
+- `30.0rc1`, `30` ([30.0rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.0rc1/Dockerfile)) [**multi-platform**]
+- `30.0rc1-alpine`, `30-alpine` ([30.0rc1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.0rc1/alpine/Dockerfile))
+
 - `29.1rc2`, `29` ([29.1rc2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.1rc2/Dockerfile)) [**multi-platform**]
 - `29.1rc2-alpine`, `29-alpine` ([29.1rc2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.1rc2/alpine/Dockerfile))
 
