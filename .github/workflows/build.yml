@@ -8,16 +8,16 @@ on:
       - '28.1/**'
       - '29.0/**'
       - '29.1rc2/**'
+      - '30.0rc1/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: ${{ github.event_name == 'pull_request' && 8 || 1 }}
       matrix:
         version:
-          - '27.2/alpine'
-          - '27.2'
+          - '30.0rc1/alpine'
+          - '30.0rc1'
       fail-fast: true
     steps:
       - name: Checkout
@@ -139,6 +139,7 @@ jobs:
 
       - name: Login into Docker Hub
         uses: docker/login-action@v3
+        if: ${{ steps.prepare.outputs.push }} == "true"
         with:
           username: ${{ steps.prepare.outputs.docker_username }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
