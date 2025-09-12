@@ -16,8 +16,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - '28.2/alpine'
-          - '28.2'
+          - '29.1/alpine'
+          - '29.1'
       fail-fast: true
     steps:
       - name: Checkout
