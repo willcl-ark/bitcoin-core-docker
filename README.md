@@ -7,57 +7,95 @@
 > [!IMPORTANT]
 > These are **unofficial** Bitcoin Core images, not endorsed or associated with the Bitcoin Core project on Github: github.com/bitcoin/bitcoin
 
-- The images are aimed at testing environments (e.g. for downstream or bitcoin-adjacent projects), as it is non-trivial to verify the authenticity of the bitcoin core binaries inside.
-  - When using Bitcoin Core software for non-testing purposes you should always ensure that you have either: i) built it from source yourself, or ii) verfied your binary download (see [this page](https://bitcoincore.org/en/download/) for more information on how to do this).
-- The images are built using CI workflows found in this repo: https://github.com/willcl-ark/bitcoin-core-docker
-- The images are built with support for the following platforms:
-  | Image                              | Platforms                              |
-  |------------------------------------|----------------------------------------|
-  | `bitcoin/bitcoin:latest`           | linux/amd64, linux/arm64, linux/arm/v7 |
-  | `bitcoin/bitcoin:alpine`           | linux/amd64                            |
-  | `bitcoin/bitcoin:<version>`        | linux/amd64, linux/arm64, linux/arm/v7 |
-  | `bitcoin/bitcoin:<version>-alpine` | linux/amd64                            |
-  | `bitcoin/bitcoin:master`           | linux/amd64, linux/arm64               |
-  | `bitcoin/bitcoin:master-alpine`    | linux/amd64, linux/arm64               |
+- The images are aimed at testing environments (e.g. for downstream or bitcoin-adjacent projects). For production use, you should build from source or verify binaries yourself (see [bitcoincore.org/en/download/](https://bitcoincore.org/en/download/)).
 
-- The Debian-based (non-alpine) images use pre-built binaries pulled from bitcoincore.org or bitcoin.org (or both) as availability dictates. These binaries are built using the Bitcoin Core [reproducible build](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md) system, and signatures attesting to them can be found in the [guix.sigs](https://github.com/bitcoin-core/guix.sigs) repo. Signatures are checked in the build process for these docker images using the [verify_binaries.py](https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries) script from the bitcoin/bitcoin git repository.
-- The alpine images are built from source inside the CI.
-- The nightly master image is source-built, and targeted at the linux/amd64 and linux/arm64 platforms.
+- The images are built using Nix flakes in this repo: https://github.com/willcl-ark/bitcoin-core-docker
+
+- **Binary Verification**: Instead of GPG signature verification of the binary tarballs from bitcoincore.org, this project uses Nix's content-addressable storage with cryptographic hashes locked in the flake configuration. Each binary download is verified against pre-computed SHA-256 hashes (from the SHASUMS file), providing equivalent security, so long as the binary hashes here are known-good.
+
+- Multi-architecture support for all major platforms:
+  | Architecture | Docker Platform | Nix System |
+  |-------------|----------------|------------|
+  | AMD64 | linux/amd64 | x86_64-linux |
+  | ARM64 | linux/arm64 | aarch64-linux |
+  | ARMv7 | linux/arm/v7 | armv7l-linux |
+  | PowerPC64 | linux/ppc64le | powerpc64-linux |
+  | RISC-V 64 | linux/riscv64 | riscv64-linux |
+
+- All non-master images use official Bitcoin Core binaries from bitcoincore.org, built with the [reproducible Guix build system](https://github.com/bitcoin/bitcoin/blob/master/contrib/guix/README.md).
+
+- Each Bitcoin Core version is managed as a separate Nix flake with locked dependencies, ensuring ~ reproducible builds and allowing different versions to use appropriate toolchain versions.
+
+## Build System
+
+This project uses [Nix flakes](https://nixos.wiki/wiki/Flakes) for reproducible, multi-architecture Docker image builds:
+
+### Binary Verification Approach
+
+**Previous approach** (Docker-based CI): Used GPG signature verification with `verify_binaries.py` script during Docker build.
+
+**Current approach** (Nix flakes): Uses the SHA256SUMS files directly from bitcoincore.org. Each version directory contains a copy of the SHA256SUMS file which is parsed automatically:
+
+```nix
+# Each version references its SHA256SUMS file, hosted also on bitcoincore.org
+versions = {
+  "29.1" = shasumsLib.shasumsToVersionConfig {
+    version = "29.1";
+    urlPath = "bitcoin-core-29.1/";
+    tags = ["29.1" "29" "latest"];
+    shasumsPath = ./SHA256SUMS;
+  };
+};
+```
+
+This approach provides:
+
+- **Equivalent security**: SHA-256 hashes provide the same tamper detection as GPG signatures
+- **Simpler verification**: No need to manage GPG keyrings or signature files
+- **Immutable builds**: Hash mismatches cause immediate build failures
+
+### Multi-Architecture Support
+
+The flake builds images for all supported architectures in parallel and creates Docker manifests for seamless multi-platform deployment. Use the included justfile for easy building:
+
+```bash
+# Build specific architecture
+just build 29.1 amd64
+
+# Build all architectures
+just build-all 29.1
+
+# Push with multi-arch manifest
+just push 29.1 docker.io/youruser
+```
 
 ## Tags
 
 - `29.1`, `29`, `latest` ([29.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.1/Dockerfile)) [**multi-platform**]
 - `29.1-alpine`, `29-alpine` ([29.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.1/alpine/Dockerfile))
-
-- `28.2`, `28` ([28.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.2/Dockerfile)) [**multi-platform**]
+- `28.2`, `28` ([28.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.2/Dockerfile)) \[**multi-platform**\]
 - `28.2-alpine`, `28-alpine`, `alpine` ([28.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/28.2/alpine/Dockerfile))
-
-- `27.2`, `27` ([27.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.2/Dockerfile)) [**multi-platform**]
+- `27.2`, `27` ([27.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.2/Dockerfile)) \[**multi-platform**\]
 - `27.2-alpine`, `27-alpine` ([27.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/27.2/alpine/Dockerfile))
 
 ## Release Candidates
 
-- `30.0rc1` ([30.0rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.0rc1/Dockerfile)) [**multi-platform**]
-- `30.0rc1-alpine` ([30.0rc1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.0rc1/alpine/Dockerfile))
+- `30.0rc1` ([30.0rc1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.0rc1/Dockerfile)) \[**multi-platform**\]
+- `29.1rc2` ([29.1rc2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.1rc2/Dockerfile)) \[**multi-platform**\]
 
 ### Picking the right tag
 
-> [!IMPORTANT]
-> The Alpine Linux distribution, whilst being a resource efficient Linux distribution with security in mind, is not officially supported by the Bitcoin Core team — use at your own risk.
-
 #### Latest released version
 
-These tags refer to the latest major version, and the latest minor and patch of this version where applicable.
+This tag refers to the latest major version, and the latest minor and patch of this version where applicable.
 
 - `bitcoin/bitcoin:latest`: Release binaries directly from bitcoincore.org. Caution when specifying this tag in production as blindly upgrading Bitcoin Core major versions can introduce new behaviours.
-- `bitcoin/bitcoin:alpine`: Source-built binaries using the Alpine Linux distribution.
 
 #### Specific released version
 
 These tags refer to a specific version of Bitcoin Core.
 
 - `bitcoin/bitcoin:<version>`: Release binaries of a specific release directly from bitcoincore.org (e.g. `27.1` or `26`).
-- `bitcoin/bitcoin:<version>-alpine`: Source-built binaries of a specific release of Bitcoin Core (e.g. `27.1` or `26`) using the Alpine Linux distribution.
 
 #### Nightly master build
 
@@ -82,20 +120,21 @@ These images contain the main binaries from the Bitcoin Core project - `bitcoind
 
 _Note: [learn more](#using-rpcauth-for-remote-authentication) about how `-rpcauth` works for remote authentication._
 
-By default, `bitcoind` will run as user `bitcoin` in the group `bitcoin` for security reasons and its default data directory is set to `/home/bitcoin/.bitcoin`. If you'd like to customize where `bitcoin` stores its data, you must use the `BITCOIN_DATA` environment variable. The directory will be automatically created with the correct permissions for the `bitcoin` user and `bitcoind` automatically configured to use it.
+By default, `bitcoind` runs with `/data` as its working directory and data directory. The container runs as root and does not create a dedicated `bitcoin` user. To persist blockchain data, mount a volume to `/data`:
 
 ```sh
-❯ docker run --env BITCOIN_DATA=/var/lib/bitcoin-core --rm -it bitcoin/bitcoin \
+❯ docker run -v ${PWD}/data:/data -it --rm bitcoin/bitcoin \
   -printtoconsole \
   -regtest=1
 ```
 
-You can also mount a directory in a volume under `/home/bitcoin/.bitcoin` in case you want to access it on the host:
+You can also customize the data directory by overriding the default `-datadir=/data` argument:
 
 ```sh
-❯ docker run -v ${PWD}/data:/home/bitcoin/.bitcoin -it --rm bitcoin/bitcoin \
+❯ docker run -v ${PWD}/bitcoin-data:/var/lib/bitcoin --rm -it bitcoin/bitcoin \
   -printtoconsole \
-  -regtest=1
+  -regtest=1 \
+  -datadir=/var/lib/bitcoin
 ```
 
 You can optionally create a service using `docker-compose`:
@@ -108,19 +147,23 @@ bitcoin-core:
     -regtest=1
 ```
 
-### Using a custom user id (UID) and group id (GID)
+### File Permissions
 
-By default, images are created with a `bitcoin` user/group using a static UID/GID (`101:101` on Debian and `100:101` on Alpine). You may customize the user and group ids using the build arguments `UID` (`--build-arg UID=<uid>`) and `GID` (`--build-arg GID=<gid>`).
+The container runs as root by default. If you need to manage file permissions for the data directory, you can:
 
-If you'd like to use the pre-built images, you can also customize the UID/GID on runtime via environment variables `$UID` and `$GID`:
-
+1. Set permissions on the host directory before mounting:
 ```sh
-❯ docker run -e UID=10000 -e GID=10000 -it --rm bitcoin/bitcoin \
+❯ mkdir -p ./data
+❯ chmod 755 ./data
+❯ docker run -v ${PWD}/data:/data -it --rm bitcoin/bitcoin -printtoconsole -regtest=1
+```
+
+2. Or use Docker's `--user` flag to run as a specific user:
+```sh
+❯ docker run --user 1000:1000 -v ${PWD}/data:/data -it --rm bitcoin/bitcoin \
   -printtoconsole \
   -regtest=1
 ```
-
-This will recursively change the ownership of the `bitcoin` home directory and `$BITCOIN_DATA` to UID/GID `10000:10000`.
 
 ### Using RPC to interact with the daemon
 
@@ -143,7 +186,7 @@ Start by launch the Bitcoin Core daemon:
 Then, inside the running same `bitcoin-server` container, locally execute the query to the daemon using `bitcoin-cli`:
 
 ```sh
-❯ docker exec --user bitcoin bitcoin-server bitcoin-cli -regtest getmininginfo
+❯ docker exec bitcoin-server bitcoin-cli -regtest getmininginfo
 
 {
   "blocks": 0,
@@ -158,11 +201,11 @@ Then, inside the running same `bitcoin-server` container, locally execute the qu
 }
 ```
 
-`bitcoin-cli` reads the authentication credentials automatically from the [data directory](https://github.com/bitcoin/bitcoin/blob/master/doc/files.md#data-directory-layout), on mainnet this means from `/home/bitcoin/.bitcoin/.cookie`.
+`bitcoin-cli` reads the authentication credentials automatically from the [data directory](https://github.com/bitcoin/bitcoin/blob/master/doc/files.md#data-directory-layout), which in these images defaults to `/data/.cookie`.
 
 #### Using rpcauth for remote authentication
 
-Before setting up remote authentication, you will need to generate the `rpcauth` line that will hold the credentials for the Bitcoind Core daemon. You can either do this yourself by constructing the line with the format `<user>:<salt>$<hash>` or use the official [`rpcauth.py`](https://github.com/bitcoin/bitcoin/blob/master/share/rpcauth/rpcauth.py)  script to generate this line for you, including a random password that is printed to the console.
+Before setting up remote authentication, you will need to generate the `rpcauth` line that will hold the credentials for the Bitcoind Core daemon. You can either do this yourself by constructing the line with the format `<user>:<salt>$<hash>` or use the official [`rpcauth.py`](https://github.com/bitcoin/bitcoin/blob/master/share/rpcauth/rpcauth.py) script to generate this line for you, including a random password that is printed to the console.
 
 _Note: This is a Python 3 script. use `[...] | python3 - <username>` when executing on macOS._
 
@@ -194,7 +237,7 @@ Let's opt for the Docker way:
 Two important notes:
 
 1. Some shells require escaping the rpcauth line (e.g. zsh).
-2. It is now perfectly fine to pass the rpcauth line as a command line argument. Unlike `-rpcpassword`, the content is hashed so even if the arguments would be exposed, they would not allow the attacker to get the actual password.
+1. It is now perfectly fine to pass the rpcauth line as a command line argument. Unlike `-rpcpassword`, the content is hashed so even if the arguments would be exposed, they would not allow the attacker to get the actual password.
 
 To avoid any confusion about whether or not a remote call is being made, let's spin up another container to execute `bitcoin-cli` and connect it via the Docker network using the password generated above:
 
