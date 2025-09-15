@@ -188,7 +188,6 @@ in {
         echo "Loading ${packageName}..."
         docker load < ${packages.${packageName}}
         docker tag bitcoin/bitcoin:${tag} ${registry}/bitcoin:${tag}-${dockerArch}
-        docker push ${registry}/bitcoin:${tag}-${dockerArch}
 
       '')
       availablePlatforms;
@@ -213,11 +212,11 @@ in {
 
       echo "Pushing Bitcoin Core ${version} (${tag}) to ''${REGISTRY}..."
 
-      # Load and push individual architecture images
+      # Load and tag individual architecture images locally
       ${loadCommands}
 
-      # Create and push manifest
-      echo "Creating manifest for ''${REGISTRY}/bitcoin:${tag}..."
+      # Create and push multi-arch manifest (this will push all architecture images)
+      echo "Creating and pushing manifest for ''${REGISTRY}/bitcoin:${tag}..."
       docker manifest rm ''${REGISTRY}/bitcoin:${tag} || true
       docker manifest create ''${REGISTRY}/bitcoin:${tag}${manifestAmendFlags}
       docker manifest push ''${REGISTRY}/bitcoin:${tag}

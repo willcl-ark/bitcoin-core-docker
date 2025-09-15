@@ -1,170 +1,61 @@
-name: build
+name: Build Bitcoin Core Docker Images
 
 on:
-  workflow_dispatch:
   pull_request:
     paths:
-      - '27.2/**'
-      - '28.2/**'
-      - '29.0/**'
-      - '29.1rc2/**'
       - '30.0rc1/**'
+      - 'common.nix'
+      - 'shasums.nix'
+      - 'flake.nix'
+      - 'justfile'
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build ${{ matrix.version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version:
-          - '29.1/alpine'
-          - '29.1'
-      fail-fast: true
+        version: ['30.0rc1']
+      fail-fast: false
+    env:
+      USERNAME: bitcoin
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: bitcoin-core-docker
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - uses: extractions/setup-just@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Prepare Docker build
-        id: prepare
-        run: |
-          BITCOIN_VERSION=${{matrix.version}}
-          echo "Processing: $BITCOIN_VERSION"
-
-          # Check if the version ends with /alpine
-          if [[ $BITCOIN_VERSION == */alpine ]]; then
-              ALPINE=true
-              BITCOIN_VERSION=${BITCOIN_VERSION%/alpine}
-          else
-              ALPINE=false
-          fi
-
-          # Check if the version contains rc*
-          if [[ $BITCOIN_VERSION == *rc* ]]; then
-              RC=$(echo "$BITCOIN_VERSION" | grep -oP 'rc\d+')
-              BITCOIN_VERSION=${BITCOIN_VERSION%rc*}
-          else
-              RC=""
-          fi
-
-          LATEST_BITCOIN_MAJOR_VERSION=$(find . -maxdepth 1 -type d -not -path '*/\.*' -not -path '*/deprecated' -not -name '*rc*' -not -name 'master' | sort -V | tail -n 1 | cut -c 3- )
-          PLATFORMS="linux/amd64"
-          PUSH=false
-          REPO=bitcoin/bitcoin
-          TAGS=()
-
-          # Split the extracted version into major, minor and patch variables
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$BITCOIN_VERSION"
-
-          # Output the extracted version parts
-          echo "Major Version: $MAJOR"
-          echo "Minor Version: $MINOR"
-          echo "Patch Version: ${PATCH:-0}"
-          echo "RC: $RC"
-          echo "Latest major version: $LATEST_BITCOIN_MAJOR_VERSION"
-
-          # Add primary tags
-          if ! $ALPINE; then
-              # Non-alpine
-              if [[ -n "$RC" ]]; then
-                  if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}${RC}")
-                  else
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}${RC}")
-                  fi
-              elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                  TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}")
-                  TAGS+=("$REPO:${MAJOR}")
-              else
-                  TAGS+=("$REPO:${MAJOR}.${MINOR}")
-                  TAGS+=("$REPO:${MAJOR}")
-              fi
-          else
-              # Alpine
-              if [[ -n "$RC" ]]; then
-                  if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}${RC}-alpine")
-                  else
-                      TAGS+=("$REPO:${MAJOR}.${MINOR}${RC}-alpine")
-                  fi
-              elif [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-                  TAGS+=("$REPO:${MAJOR}.${MINOR}.${PATCH}-alpine")
-                  TAGS+=("$REPO:${MAJOR}-alpine")
-              else
-                  TAGS+=("$REPO:${MAJOR}.${MINOR}-alpine")
-                  TAGS+=("$REPO:${MAJOR}-alpine")
-              fi
-          fi
-
-          # Create the stripped version including patch if it exists
-          if [[ -n "$PATCH" && "$PATCH" -ne 0 ]]; then
-              STRIPPED_VERSION="$MAJOR.$MINOR.$PATCH"
-          else
-              STRIPPED_VERSION="$MAJOR.$MINOR"
-          fi
-          echo "Stripped version: $STRIPPED_VERSION"
-
-          # Add any "latest" tags if not a release candidate
-          LATEST_MAJOR=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $1}')
-          LATEST_MINOR=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $2}')
-          LATEST_PATCH=$(echo "$LATEST_BITCOIN_MAJOR_VERSION" | awk -F. '{print $3}')
-
-          if [[ -z "$RC" && ("$MAJOR" -gt "$LATEST_MAJOR" || ("$MAJOR" -eq "$LATEST_MAJOR" && "$MINOR" -gt "$LATEST_MINOR") || ("$MAJOR" -eq "$LATEST_MAJOR" && "$MINOR" -eq "$LATEST_MINOR" && "${PATCH:-0}" -ge "${LATEST_PATCH:-0}")) ]]; then
-              if ! $ALPINE; then
-                echo "Version ${MAJOR}.${MINOR}.${PATCH} >= ${LATEST_BITCOIN_MAJOR_VERSION}, tagging as 'latest'"
-                TAGS+=("$REPO:latest")
-                TAGS+=("$REPO:${MAJOR}")
-              else
-                echo "Version ${MAJOR}.${MINOR}.${PATCH} >= ${LATEST_BITCOIN_MAJOR_VERSION}, tagging as 'alpine'"
-                TAGS+=("$REPO:alpine")
-                TAGS+=("$REPO:${MAJOR}-alpine")
-              fi
-          fi
-
-          if [[ $GITHUB_REF == "refs/heads/master" ]]; then
-              PUSH=true
-          fi
-
-          if ! $ALPINE; then
-              PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
-          fi
-
-          echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" | tee -a $GITHUB_OUTPUT
-          echo "docker_platforms=${PLATFORMS}" | tee -a $GITHUB_OUTPUT
-          echo "docker_username=bitcoin" | tee -a $GITHUB_OUTPUT
-          echo "push=${PUSH}" | tee -a $GITHUB_OUTPUT
-          echo "tags=${TAGS[@]}" | tee -a $GITHUB_OUTPUT
-
-      - name: Login into Docker Hub
+      - name: Login to Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v3
-        if: ${{ steps.prepare.outputs.push == 'true' }}
         with:
-          username: ${{ steps.prepare.outputs.docker_username }}
+          username: ${{ env.USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Build images
         run: |
-          TAGS=(${{ steps.prepare.outputs.tags }})
+          just build-all ${{ matrix.version }}
 
-          echo "Build date: ${{ steps.prepare.outputs.build_date }}"
-          echo "Docker platform: ${{ steps.prepare.outputs.docker_platforms }}"
-          echo "Push: ${{ steps.prepare.outputs.push }}"
-          echo "Tags: ${{ steps.prepare.outputs.tags }}"
-
-          echo docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --output "type=image,push=${{steps.prepare.outputs.push}}" \
-            --progress=plain \
-            --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
-            --build-arg "VCS_REF=${GITHUB_SHA::8}" \
-            $(printf "%s" "${TAGS[@]/#/ --tag }" ) \
-            ${{ matrix.version }}/
-
-          docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --output "type=image,push=${{steps.prepare.outputs.push}}" \
-            --progress=plain \
-            --build-arg "BUILD_DATE=${{ steps.prepare.outputs.build_date }}" \
-            --build-arg "VCS_REF=${GITHUB_SHA::8}" \
-            $(printf "%s" "${TAGS[@]/#/ --tag }" ) \
-            ${{ matrix.version }}/
+      - name: Push images
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          just push ${{ matrix.version }} docker.io/${{ env.USERNAME }}

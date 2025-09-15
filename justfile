@@ -155,9 +155,7 @@ build-all version:
     echo "Building all architectures for Bitcoin Core {{version}}..."
     for arch in amd64 arm64 arm ppc64 riscv64; do
         echo "Building {{version}} for ${arch}..."
-        just build "{{version}}" "${arch}" || {
-            echo "Warning: Failed to build {{version}} for ${arch} (architecture may not be available)"
-        }
+        just build "{{version}}" "${arch}"
     done
 
     echo "Done"
