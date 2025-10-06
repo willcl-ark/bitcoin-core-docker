@@ -6,6 +6,8 @@ on:
     paths:
       - '27.2/**'
       - '28.2/**'
+      - '28.3/**'
+      - '28.3rc1/**'
       - '29.0/**'
       - '29.1rc2/**'
       - '30.0rc2/**'
@@ -16,8 +18,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - '30.0rc2/alpine'
-          - '30.0rc2'
+          - '28.3rc1/alpine'
+          - '28.3rc1'
       fail-fast: true
     steps:
       - name: Checkout
