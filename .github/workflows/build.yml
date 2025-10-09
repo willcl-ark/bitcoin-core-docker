@@ -10,7 +10,7 @@ on:
       - '28.3rc1/**'
       - '29.0/**'
       - '29.2rc2/**'
-      - '30.0rc2/**'
+      - '30.0rc3/**'
 
 jobs:
   build:
@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - '29.2rc2/alpine'
-          - '29.2rc2'
+          - '30.0rc3/alpine'
+          - '30.0rc3'
       fail-fast: true
     steps:
       - name: Checkout
