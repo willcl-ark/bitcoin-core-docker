@@ -1,6 +1,6 @@
 # bitcoin/bitcoin
 
-[![bitcoin/bitcoin][docker-pulls-image]][docker-hub-url] [![bitcoin/bitcoin][docker-stars-image]][docker-hub-url] [![bitcoin/bitcoin][docker-size-image]][docker-hub-url]
+[![bitcoin/bitcoin][docker-pulls]][docker-hub-url] [![bitcoin/bitcoin][docker-stars]][docker-hub-url] [![bitcoin/bitcoin][image-size-alpine]][image-size-alpine-url] [![bitcoin/bitcoin][image-size-debian]][image-size-debian-url] [![bitcoin/bitcoin][image-size-master-alpine]][image-size-master-alpine-url]
 
 ## About the images
 
@@ -270,6 +270,11 @@ curl --data-binary '{"jsonrpc":"1.0","id":"1","method":"getnetworkinfo","params"
 [License information](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/LICENSE) for the [willcl-ark/bitcoin-core-docker][docker-hub-url] docker project.
 
 [docker-hub-url]: https://hub.docker.com/r/bitcoin/bitcoin
-[docker-pulls-image]: https://img.shields.io/docker/pulls/bitcoin/bitcoin.svg?style=flat-square
-[docker-size-image]: https://img.shields.io/docker/image-size/bitcoin/bitcoin?style=flat-square
-[docker-stars-image]: https://img.shields.io/docker/stars/bitcoin/bitcoin.svg?style=flat-square
+[docker-pulls]: https://img.shields.io/docker/pulls/bitcoin/bitcoin
+[docker-stars]: https://img.shields.io/docker/stars/bitcoin/bitcoin
+[image-size-alpine]: https://img.shields.io/docker/image-size/bitcoin/bitcoin/alpine?label=alpine
+[image-size-alpine-url]: https://hub.docker.com/layers/bitcoin/bitcoin/alpine/
+[image-size-debian]: https://img.shields.io/docker/image-size/bitcoin/bitcoin/latest?label=debian
+[image-size-debian-url]: https://hub.docker.com/layers/bitcoin/bitcoin/latest/
+[image-size-master-alpine]: https://img.shields.io/docker/image-size/bitcoin/bitcoin/master-alpine?label=master-alpine
+[image-size-master-alpine-url]: https://hub.docker.com/layers/bitcoin/bitcoin/master-alpine/
