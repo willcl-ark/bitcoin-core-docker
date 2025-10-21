@@ -5,8 +5,7 @@ on:
   pull_request:
     paths:
       - '27.2/**'
-      - '28.2/**'
-      - '28.3rc1/**'
+      - '28.3/**'
       - '29.2/**'
       - '30.0/**'
 
@@ -16,8 +15,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - '29.2/alpine'
-          - '29.2'
+          - '28.3/alpine'
+          - '28.3'
       fail-fast: true
     steps:
       - name: Checkout
