@@ -21,7 +21,7 @@ ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 ENV BITCOIN_SOURCE_DIR=/bitcoin/src
 ENV SIGS_REPO_URL="https://github.com/bitcoin-core/guix.sigs.git"
 ENV SIGS_CLONE_DIR="guix.sigs"
-ENV VERIFY_SCRIPT_URL="https://github.com/bitcoin/bitcoin/raw/master/contrib/verify-binaries/verify.py"
+ENV VERIFY_SCRIPT_URL="https://raw.githubusercontent.com/bitcoin/bitcoin/v${BITCOIN_VERSION}/contrib/verify-binaries/verify.py"
 
 WORKDIR /bitcoin
 RUN set -ex \
