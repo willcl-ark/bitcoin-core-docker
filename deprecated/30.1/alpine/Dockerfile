@@ -28,7 +28,6 @@ ENV SIGS_CLONE_DIR="guix.sigs"
 ENV VERIFY_SCRIPT_URL="https://raw.githubusercontent.com/bitcoin/bitcoin/v${BITCOIN_VERSION}/contrib/verify-binaries/verify.py"
 
 WORKDIR /bitcoin
-COPY verify-${BITCOIN_VERSION}.py .
 
 RUN set -ex \
   && if echo $BITCOIN_VERSION | grep -q "rc" ; then \
@@ -44,7 +43,9 @@ RUN set -ex \
   && wget ${ADDRESS}/SHA256SUMS.asc \
   && git clone ${SIGS_REPO_URL} ${SIGS_CLONE_DIR} \
   && gpg --import "${SIGS_CLONE_DIR}"/builder-keys/* \
-  && ./verify-${BITCOIN_VERSION}.py bin SHA256SUMS \
+  && wget -O verify.py ${VERIFY_SCRIPT_URL} \
+  && chmod +x verify.py \
+  && ./verify.py bin SHA256SUMS \
     "bitcoin-${BITCOIN_VERSION}.tar.gz" \
   && mkdir -p ${BITCOIN_SOURCE_DIR} \
   && tar -xzf "bitcoin-${BITCOIN_VERSION}.tar.gz" -C ${BITCOIN_SOURCE_DIR} \

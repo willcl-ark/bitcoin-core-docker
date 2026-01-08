@@ -11,7 +11,7 @@ ARG TARGETPLATFORM
 ENV BITCOIN_VERSION=27.2
 ENV SIGS_REPO_URL="https://github.com/bitcoin-core/guix.sigs.git"
 ENV SIGS_CLONE_DIR="guix.sigs"
-ENV VERIFY_SCRIPT_URL="https://raw.githubusercontent.com/bitcoin/bitcoin/master/contrib/verify-binaries/verify.py"
+ENV VERIFY_SCRIPT_URL="https://raw.githubusercontent.com/bitcoin/bitcoin/v${BITCOIN_VERSION}/contrib/verify-binaries/verify.py"
 ENV TMPDIR="/tmp/bitcoin_verify_binaries"
 
 RUN set -ex \
