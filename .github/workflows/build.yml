@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - '30.2rc1/**'
       - '29.2/**'
       - '28.3/**'
       - '27.2/**'
@@ -14,8 +15,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - '29.2/alpine'
-          - '29.2'
+          - '30.2rc1/alpine'
+          - '30.2rc1'
       fail-fast: true
     steps:
       - name: Checkout
