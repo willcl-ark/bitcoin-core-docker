@@ -16,10 +16,6 @@ jobs:
         version:
           - '29.2/alpine'
           - '29.2'
-          - '28.3/alpine'
-          - '28.3'
-          - '27.2/alpine'
-          - '27.2'
       fail-fast: true
     steps:
       - name: Checkout
