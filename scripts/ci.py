@@ -127,17 +127,24 @@ def get_latest_version(repo_root: Path) -> Version | None:
     return max(versions) if versions else None
 
 
-def get_matrix(github_ref: str, repo_root: Path) -> dict:
-    """Generate build matrix based on GitHub ref."""
-    if github_ref.startswith("refs/tags/v"):
-        version = github_ref.removeprefix("refs/tags/v")
+def get_matrix(github_ref: str, repo_root: Path, version: str | None = None) -> dict:
+    """Generate build matrix based on GitHub ref or explicit version."""
+    if version:
         version_dir = repo_root / version
         if not version_dir.is_dir():
-            print(
-                f"Error: Directory '{version}' does not exist for tag", file=sys.stderr
-            )
+            print(f"Error: Directory '{version}' does not exist", file=sys.stderr)
             sys.exit(1)
         dirs = [version]
+    elif github_ref.startswith("refs/tags/v"):
+        tag_version = github_ref.removeprefix("refs/tags/v")
+        version_dir = repo_root / tag_version
+        if not version_dir.is_dir():
+            print(
+                f"Error: Directory '{tag_version}' does not exist for tag",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        dirs = [tag_version]
     else:
         dirs = discover_all_top_level(repo_root)
 
@@ -219,18 +226,20 @@ def generate_tags(version_str: str, alpine: bool, repo_root: Path) -> list[str]:
     return tags
 
 
-def should_push(github_ref: str) -> bool:
+def should_push(github_ref: str, version: str | None = None) -> bool:
     """Determine if images should be pushed."""
+    if version:
+        return version != "master"
     if not github_ref.startswith("refs/tags/v"):
         return False
-    version = github_ref.removeprefix("refs/tags/v")
-    return version != "master"
+    tag_version = github_ref.removeprefix("refs/tags/v")
+    return tag_version != "master"
 
 
 def cmd_matrix(args):
     """Handle 'matrix' command."""
     repo_root = get_repo_root()
-    matrix = get_matrix(args.ref, repo_root)
+    matrix = get_matrix(args.ref, repo_root, getattr(args, "version", None))
     print(json.dumps(matrix, separators=(",", ":")))
 
 
@@ -243,7 +252,7 @@ def cmd_tags(args):
 
 def cmd_should_push(args):
     """Handle 'should-push' command."""
-    result = should_push(args.ref)
+    result = should_push(args.ref, getattr(args, "version", None))
     print("true" if result else "false")
 
 
@@ -261,6 +270,10 @@ def main():
         required=True,
         help="GitHub ref (e.g., refs/tags/v30.2, refs/heads/master)",
     )
+    matrix_parser.add_argument(
+        "--version",
+        help="Override: build only this version (e.g., 30.2)",
+    )
 
     tags_parser = subparsers.add_parser("tags", help="Output Docker tags for a version")
     tags_parser.add_argument(
@@ -277,6 +290,10 @@ def main():
         "--ref",
         required=True,
         help="GitHub ref (e.g., refs/tags/v30.2, refs/heads/master)",
+    )
+    push_parser.add_argument(
+        "--version",
+        help="Override: if set, will push this version (e.g., 30.2)",
     )
 
     args = parser.parse_args()

@@ -2,6 +2,11 @@ name: build
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build and push (e.g., 30.2). Leave empty to build all without pushing.'
+        required: false
+        type: string
   pull_request:
     branches:
       - master
@@ -24,8 +29,12 @@ jobs:
       - name: Discover versions and set matrix
         id: matrix
         run: |
-          echo "matrix=$(python scripts/ci.py matrix --ref $GITHUB_REF)" >> $GITHUB_OUTPUT
-          echo "push=$(python scripts/ci.py should-push --ref $GITHUB_REF)" >> $GITHUB_OUTPUT
+          VERSION_FLAG=""
+          if [[ -n "${{ inputs.version }}" ]]; then
+            VERSION_FLAG="--version ${{ inputs.version }}"
+          fi
+          echo "matrix=$(python scripts/ci.py matrix --ref $GITHUB_REF $VERSION_FLAG)" >> $GITHUB_OUTPUT
+          echo "push=$(python scripts/ci.py should-push --ref $GITHUB_REF $VERSION_FLAG)" >> $GITHUB_OUTPUT
 
   build:
     needs: discover
