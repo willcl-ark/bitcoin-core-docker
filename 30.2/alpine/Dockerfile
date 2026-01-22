@@ -1,7 +1,7 @@
 # Build stage for Bitcoin Core
-FROM alpine:3.22 AS build
+FROM alpine:3.23 AS build
 
-ENV CLANG_V=20
+ENV CLANG_V=21
 
 RUN apk --no-cache add \
     boost-dev \
@@ -66,7 +66,7 @@ RUN cmake -B build \
     cmake --install build
 
 # Build stage for compiled artifacts
-FROM alpine:3.21
+FROM alpine:3.23
 
 ARG UID=100
 ARG GID=101
