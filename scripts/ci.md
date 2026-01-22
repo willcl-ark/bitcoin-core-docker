@@ -68,6 +68,17 @@ Tags are generated based on version number:
 
 The highest non-RC version automatically gets the `latest` and `alpine` tags.
 
+## Platform Support
+
+| Version | Variant | Platforms |
+|---------|---------|-----------|
+| Releases (27.2, etc.) | debian | `linux/amd64`, `linux/arm64`, `linux/arm/v7` |
+| Releases | alpine | `linux/amd64` |
+| master | debian | `linux/amd64` |
+| master | alpine | `linux/amd64` |
+
+Full multi-arch master builds are handled by the nightly workflows.
+
 ## Nightly Builds
 
 The `master` directory has separate nightly workflows:

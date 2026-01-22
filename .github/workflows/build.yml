@@ -60,6 +60,9 @@ jobs:
             ALPINE_FLAG="--alpine"
             BUILD_PATH="${{ matrix.version }}/alpine"
             PLATFORMS="linux/amd64"
+          elif [[ "${{ matrix.version }}" == "master" ]]; then
+            BUILD_PATH="${{ matrix.version }}"
+            PLATFORMS="linux/amd64"
           else
             BUILD_PATH="${{ matrix.version }}"
             PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
