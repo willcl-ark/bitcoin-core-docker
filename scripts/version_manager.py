@@ -86,7 +86,6 @@ class VersionManager:
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
         self.deprecated_dir = repo_root / "deprecated"
-        self.workflow_file = repo_root / ".github" / "workflows" / "build.yml"
         self.readme_file = repo_root / "README.md"
 
     def get_active_versions(self) -> list[Version]:
@@ -182,10 +181,6 @@ class VersionManager:
             version.original,
         )
 
-        # Update workflow
-        print("  Updating .github/workflows/build.yml")
-        self._add_version_to_workflow(version.original)
-
         # Auto-deprecate old version if same major
         if auto_deprecate:
             print(f"  Auto-deprecating {source_version}")
@@ -211,9 +206,6 @@ class VersionManager:
         # Move to deprecated
         self.deprecated_dir.mkdir(exist_ok=True)
         shutil.move(source_dir, target_dir)
-
-        # Update workflow
-        self._remove_version_from_workflow(version.original)
 
     def deprecate_version(self, version_str: str):
         """Deprecate an existing version."""
@@ -278,40 +270,6 @@ class VersionManager:
             content,
         )
         dockerfile.write_text(updated)
-
-    def _add_version_to_workflow(self, version: str):
-        """Add version to build.yml paths and replace matrix with just this version."""
-        content = self.workflow_file.read_text()
-
-        # Add to paths section
-        # Find: paths:\n      - 'X.Y/**'
-        # Insert new path at the beginning of the list
-        paths_pattern = r"(paths:\n)"
-        paths_replacement = rf"\g<1>      - '{version}/**'\n"
-        content = re.sub(paths_pattern, paths_replacement, content)
-
-        # Replace entire matrix with just the new version
-        # Match: version:\n followed by any number of entries until fail-fast
-        matrix_pattern = r"(version:\n)(?:          - '[^']+'\n)+(\s+fail-fast:)"
-        matrix_replacement = (
-            rf"\g<1>          - '{version}/alpine'\n          - '{version}'\n\g<2>"
-        )
-        content = re.sub(matrix_pattern, matrix_replacement, content)
-
-        self.workflow_file.write_text(content)
-
-    def _remove_version_from_workflow(self, version: str):
-        """Remove version from build.yml paths and matrix using regex."""
-        content = self.workflow_file.read_text()
-
-        # Remove from paths
-        content = re.sub(rf"      - '{re.escape(version)}/\*\*'\n", "", content)
-
-        # Remove from matrix (both alpine and regular)
-        content = re.sub(rf"          - '{re.escape(version)}/alpine'\n", "", content)
-        content = re.sub(rf"          - '{re.escape(version)}'\n", "", content)
-
-        self.workflow_file.write_text(content)
 
     def _update_readme(self):
         """Update README.md tags section based on active versions."""
