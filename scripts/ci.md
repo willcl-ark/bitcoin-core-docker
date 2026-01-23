@@ -12,6 +12,8 @@ The CI is controlled by `scripts/ci.py` and `.github/workflows/build.yml`.
 | Manual (no version) | All versions + alpine variants | No |
 | Manual (version=`30.2`) | Specified version only | Yes |
 
+If you push a commit and tag together, the branch build is automatically skipped (the tag build handles it).
+
 ## Versions
 
 "All versions" means all top-level directories containing a `Dockerfile`:

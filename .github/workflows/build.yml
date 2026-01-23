@@ -29,6 +29,16 @@ jobs:
       - name: Discover versions and set matrix
         id: matrix
         run: |
+          # Skip branch builds if this commit has a tag (tag build will handle it)
+          if [[ "$GITHUB_REF" == refs/heads/* ]]; then
+            if git describe --exact-match --tags HEAD 2>/dev/null; then
+              echo "Commit has a tag, skipping branch build"
+              echo 'matrix={"include":[]}' >> $GITHUB_OUTPUT
+              echo "push=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
           VERSION_FLAG=""
           if [[ -n "${{ inputs.version }}" ]]; then
             VERSION_FLAG="--version ${{ inputs.version }}"
