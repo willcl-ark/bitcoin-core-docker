@@ -19,3 +19,8 @@ deprecate VERSION:
 # List active versions
 list:
     python3 scripts/version_manager.py list
+
+# Tag a version and push to trigger CI build+push
+tag VERSION:
+    git tag {{VERSION}}
+    git push origin HEAD {{VERSION}}
