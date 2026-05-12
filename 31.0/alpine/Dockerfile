@@ -60,7 +60,8 @@ RUN cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_COMPILER="clang++-${CLANG_V}" \
     -DCMAKE_C_COMPILER="clang-${CLANG_V}" \
-    -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" && \
+    -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
+    -DWITH_ZMQ=ON && \
     cmake --build build -j$(nproc) && \
     strip build/bin/bitcoin-cli build/bin/bitcoin-tx build/bin/bitcoind build/bin/bitcoin build/bin/bitcoin-node && \
     cmake --install build

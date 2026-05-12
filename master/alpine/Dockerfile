@@ -38,7 +38,8 @@ RUN cmake -B build \
     -DCMAKE_CXX_COMPILER=clang++-21 \
     -DCMAKE_C_COMPILER=clang-21 \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
-    -DWITH_CCACHE=ON && \
+    -DWITH_CCACHE=ON \
+    -DWITH_ZMQ=ON && \
     cmake --build build -j$(nproc) && \
     cmake --install build --strip
 

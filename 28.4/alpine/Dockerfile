@@ -57,6 +57,7 @@ RUN ./configure \
   --disable-bench \
   --disable-fuzz-binary \
   --disable-ccache \
+  --enable-zmq \
   --with-gui=no \
   --with-utils \
   --without-libs \
