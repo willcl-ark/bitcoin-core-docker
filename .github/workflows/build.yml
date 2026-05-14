@@ -10,9 +10,12 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - '*/Dockerfile'
+      - '*/docker-entrypoint.sh'
+      - '*/alpine/Dockerfile'
+      - '*/alpine/docker-entrypoint.sh'
   push:
-    branches:
-      - master
     tags:
       - 'v*'
 
