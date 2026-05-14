@@ -45,6 +45,7 @@ RUN set -ex \
     -DCMAKE_C_COMPILER=clang-19 \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON \
+    -DWITH_ZMQ=ON \
   && cmake --build build -j$(nproc) \
   && strip build/bin/bitcoin-cli build/bin/bitcoin-tx build/bin/bitcoind \
   && cmake --install build
