@@ -1,5 +1,6 @@
 name: Update Docker Hub Description
 on:
+  push:
     paths:
       - README.md
       - .github/workflows/dockerhub-description.yml
