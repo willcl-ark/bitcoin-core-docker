@@ -1,5 +1,5 @@
 # Build stage for Bitcoin Core
-FROM alpine:3.23 AS build
+FROM alpine:3.24 AS build
 
 RUN apk --no-cache add \
     boost-dev \
@@ -8,7 +8,7 @@ RUN apk --no-cache add \
     capnproto-dev \
     ccache \
     chrpath \
-    clang21 \
+    clang22 \
     cmake \
     file \
     gnupg \
@@ -34,8 +34,8 @@ RUN cmake -B build \
     -DBUILD_TX=ON \
     -DBUILD_UTIL=OFF \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DCMAKE_CXX_COMPILER=clang++-21 \
-    -DCMAKE_C_COMPILER=clang-21 \
+    -DCMAKE_CXX_COMPILER=clang++-22 \
+    -DCMAKE_C_COMPILER=clang-22 \
     -DCMAKE_INSTALL_PREFIX:PATH="${BITCOIN_PREFIX}" \
     -DWITH_CCACHE=ON \
     -DWITH_ZMQ=ON && \
@@ -43,7 +43,7 @@ RUN cmake -B build \
     cmake --install build --strip
 
 # Copy build artefacts
-FROM alpine:3.23
+FROM alpine:3.24
 
 ARG UID=100
 ARG GID=101
