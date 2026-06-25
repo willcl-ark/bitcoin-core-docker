@@ -13,7 +13,6 @@ RUN apt-get update --yes \
     git \
     libboost-dev \
     libcapnp-dev \
-    libevent-dev \
     libsqlite3-dev \
     libzmq3-dev \
     pkg-config \
@@ -65,7 +64,6 @@ RUN groupadd --gid ${GID} bitcoin \
     capnproto \
     gosu \
     libboost-dev \
-    libevent-dev \
     libsqlite3-dev \
     libzmq3-dev \
     systemtap-sdt-dev \

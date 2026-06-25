@@ -13,7 +13,6 @@ RUN apk --no-cache add \
     file \
     gnupg \
     git \
-    libevent-dev \
     linux-headers \
     sqlite-dev \
     zeromq-dev
@@ -55,7 +54,6 @@ RUN addgroup --gid ${GID} --system bitcoin && \
     adduser --uid ${UID} --system bitcoin --ingroup bitcoin
 RUN apk --no-cache add \
     bash \
-    libevent \
     libzmq \
     shadow \
     sqlite-libs \
