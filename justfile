@@ -12,6 +12,11 @@ add VERSION FROM="":
     #   just release 29.3 29.2   # explicit source
     python3 scripts/version_manager.py add {{VERSION}} {{FROM}}
 
+# Replace a version, updating Dockerfiles, CI discovery, and README tags.
+# Example: just migrate 32.0rc2 32.0rc3
+migrate FROM TO:
+    python3 scripts/version_manager.py add {{TO}} {{FROM}}
+
 # Deprecate an existing version (moves to deprecated/)
 deprecate VERSION:
     python3 scripts/version_manager.py deprecate {{VERSION}}
