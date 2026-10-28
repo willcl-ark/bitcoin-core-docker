@@ -1,12 +1,27 @@
 #!/bin/bash
 set -e
 
+# Change UID if requested
 if [ -n "${UID+x}" ] && [ "${UID}" != "0" ]; then
-  usermod -u "$UID" bitcoin
+    current_uid=$(id -u bitcoin)
+    if [ "$current_uid" != "${UID}" ]; then
+        usermod -u "${UID}" bitcoin
+    fi
 fi
 
+# Change primary group if requested
 if [ -n "${GID+x}" ] && [ "${GID}" != "0" ]; then
-  groupmod -g "$GID" bitcoin
+    existing_group=$(getent group "${GID}" | cut -d: -f1)
+
+    if [ -n "$existing_group" ]; then
+        # Reuse the existing group
+        usermod -g "$existing_group" bitcoin
+    else
+        current_gid=$(getent group bitcoin | cut -d: -f3)
+        if [ "$current_gid" != "${GID}" ]; then
+            groupmod -g "${GID}" bitcoin
+        fi
+    fi
 fi
 
 echo "$0: assuming uid:gid for bitcoin:bitcoin of $(id -u bitcoin):$(id -g bitcoin)"
