@@ -29,8 +29,8 @@
 - `32.0rc3` ([32.0rc3/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/32.0rc3/Dockerfile)) [**multi-platform**]
 - `32.0rc3-alpine` ([32.0rc3/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/32.0rc3/alpine/Dockerfile))
 
-- `31.1`, `31`, `latest` ([31.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.1/Dockerfile)) [**multi-platform**]
-- `31.1-alpine`, `31-alpine`, `alpine` ([31.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.1/alpine/Dockerfile))
+- `31.2`, `31`, `latest` ([31.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/Dockerfile)) [**multi-platform**]
+- `31.2-alpine`, `31-alpine`, `alpine` ([31.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/alpine/Dockerfile))
 
 - `30.3`, `30` ([30.3/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.3/Dockerfile)) [**multi-platform**]
 - `30.3-alpine`, `30-alpine` ([30.3/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.3/alpine/Dockerfile))
