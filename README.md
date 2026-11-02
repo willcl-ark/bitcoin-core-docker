@@ -29,14 +29,11 @@
 - `32.1`, `32`, `latest` ([32.1/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/32.1/Dockerfile)) [**multi-platform**]
 - `32.1-alpine`, `32-alpine`, `alpine` ([32.1/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/32.1/alpine/Dockerfile))
 
-- `31.2`, `31`, `latest` ([31.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/Dockerfile)) [**multi-platform**]
-- `31.2-alpine`, `31-alpine`, `alpine` ([31.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/alpine/Dockerfile))
+- `31.2`, `31` ([31.2/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/Dockerfile)) [**multi-platform**]
+- `31.2-alpine`, `31-alpine` ([31.2/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/31.2/alpine/Dockerfile))
 
 - `30.4`, `30` ([30.4/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.4/Dockerfile)) [**multi-platform**]
 - `30.4-alpine`, `30-alpine` ([30.4/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/30.4/alpine/Dockerfile))
-
-- `29.5`, `29` ([29.5/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.5/Dockerfile)) [**multi-platform**]
-- `29.5-alpine`, `29-alpine` ([29.5/alpine/Dockerfile](https://github.com/willcl-ark/bitcoin-core-docker/blob/master/29.5/alpine/Dockerfile))
 
 ### Picking the right tag
 
