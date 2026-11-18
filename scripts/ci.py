@@ -3,14 +3,14 @@
 CI helper script for bitcoin-core-docker builds.
 
 Commands:
-    matrix <--ref REF>       Output build matrix as JSON for GitHub Actions
+    matrix                   Output build matrix as JSON for GitHub Actions
     tags <--version V>       Output Docker tags for a version
-    should-push <--ref REF>  Check if images should be pushed (true/false)
 """
 
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -127,24 +127,29 @@ def get_latest_version(repo_root: Path) -> Version | None:
     return max(versions) if versions else None
 
 
-def get_matrix(github_ref: str, repo_root: Path, version: str | None = None) -> dict:
-    """Generate build matrix based on GitHub ref or explicit version."""
+def changed_top_level_dirs(repo_root: Path, base: str) -> set[str]:
+    """Top-level directory names with changes between BASE and HEAD."""
+    output = subprocess.run(
+        ["git", "diff", "--name-only", base, "HEAD"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return {line.split("/", 1)[0] for line in output.splitlines() if "/" in line}
+
+
+def get_matrix(repo_root: Path, version: str | None, base: str | None) -> dict:
+    """Generate build matrix for an explicit version, changes since BASE, or all."""
     if version:
         version_dir = repo_root / version
         if not version_dir.is_dir():
             print(f"Error: Directory '{version}' does not exist", file=sys.stderr)
             sys.exit(1)
         dirs = [version]
-    elif github_ref.startswith("refs/tags/v"):
-        tag_version = github_ref.removeprefix("refs/tags/v")
-        version_dir = repo_root / tag_version
-        if not version_dir.is_dir():
-            print(
-                f"Error: Directory '{tag_version}' does not exist for tag",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        dirs = [tag_version]
+    elif base:
+        changed = changed_top_level_dirs(repo_root, base)
+        dirs = [d for d in discover_all_top_level(repo_root) if d in changed]
     else:
         dirs = discover_all_top_level(repo_root)
 
@@ -226,20 +231,10 @@ def generate_tags(version_str: str, alpine: bool, repo_root: Path) -> list[str]:
     return tags
 
 
-def should_push(github_ref: str, version: str | None = None) -> bool:
-    """Determine if images should be pushed."""
-    if version:
-        return version != "master"
-    if not github_ref.startswith("refs/tags/v"):
-        return False
-    tag_version = github_ref.removeprefix("refs/tags/v")
-    return tag_version != "master"
-
-
 def cmd_matrix(args):
     """Handle 'matrix' command."""
     repo_root = get_repo_root()
-    matrix = get_matrix(args.ref, repo_root, getattr(args, "version", None))
+    matrix = get_matrix(repo_root, args.version, args.base)
     print(json.dumps(matrix, separators=(",", ":")))
 
 
@@ -248,12 +243,6 @@ def cmd_tags(args):
     repo_root = get_repo_root()
     tags = generate_tags(args.version, args.alpine, repo_root)
     print(" ".join(tags))
-
-
-def cmd_should_push(args):
-    """Handle 'should-push' command."""
-    result = should_push(args.ref, getattr(args, "version", None))
-    print("true" if result else "false")
 
 
 def main():
@@ -265,14 +254,14 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     matrix_parser = subparsers.add_parser("matrix", help="Output build matrix as JSON")
-    matrix_parser.add_argument(
-        "--ref",
-        required=True,
-        help="GitHub ref (e.g., refs/tags/v30.2, refs/heads/master)",
-    )
-    matrix_parser.add_argument(
+    matrix_group = matrix_parser.add_mutually_exclusive_group()
+    matrix_group.add_argument(
         "--version",
-        help="Override: build only this version (e.g., 30.2)",
+        help="Build only this version (e.g., 30.2)",
+    )
+    matrix_group.add_argument(
+        "--base",
+        help="Build only versions changed between this commit and HEAD",
     )
 
     tags_parser = subparsers.add_parser("tags", help="Output Docker tags for a version")
@@ -283,27 +272,12 @@ def main():
         "--alpine", action="store_true", help="Generate alpine tags"
     )
 
-    push_parser = subparsers.add_parser(
-        "should-push", help="Check if should push images"
-    )
-    push_parser.add_argument(
-        "--ref",
-        required=True,
-        help="GitHub ref (e.g., refs/tags/v30.2, refs/heads/master)",
-    )
-    push_parser.add_argument(
-        "--version",
-        help="Override: if set, will push this version (e.g., 30.2)",
-    )
-
     args = parser.parse_args()
 
     if args.command == "matrix":
         cmd_matrix(args)
     elif args.command == "tags":
         cmd_tags(args)
-    elif args.command == "should-push":
-        cmd_should_push(args)
 
 
 if __name__ == "__main__":
