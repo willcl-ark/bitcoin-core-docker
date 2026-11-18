@@ -6,13 +6,18 @@ The CI is controlled by `scripts/ci.py` and `.github/workflows/build.yml`.
 
 | Trigger | What's Built | Push to Docker Hub? |
 |---------|--------------|---------------------|
-| PR to master | All versions + alpine variants | No |
-| Push to master | All versions + alpine variants | No |
-| Tag push (`v30.2`) | Tagged version only | Yes |
+| PR to master | Versions changed by the PR | No |
+| Push to master | Versions changed by the push | Yes |
 | Manual (no version) | All versions + alpine variants | No |
 | Manual (version=`30.2`) | Specified version only | Yes |
 
-If you push a commit and tag together, the branch build is automatically skipped (the tag build handles it).
+After a successful push to master, CI creates a `v<version>` git tag for each
+pushed version that does not already have one.
+
+## Release process
+
+1. Open a PR with `just add <version>` (or `just deprecate <version>`).
+2. Merge it once CI passes. CI pushes the changed versions to Docker Hub and tags them.
 
 ## Versions
 
@@ -36,19 +41,12 @@ Leave the version field empty to build all versions without pushing.
 ## Testing Locally
 
 ```bash
-# See what would be built for a PR/push to master
-python scripts/ci.py matrix --ref refs/heads/master
+# See what would be built for changes since a commit (as in a PR/push to master)
+python scripts/ci.py matrix --base origin/master
 
-# See what would be built for a tag
-python scripts/ci.py matrix --ref refs/tags/v30.2
-
-# See what would be built for manual dispatch with version
-python scripts/ci.py matrix --ref refs/heads/master --version 30.2
-
-# Check if images would be pushed
-python scripts/ci.py should-push --ref refs/tags/v30.2      # true
-python scripts/ci.py should-push --ref refs/heads/master    # false
-python scripts/ci.py should-push --ref refs/heads/master --version 30.2  # true
+# See what would be built for manual dispatch without/with version
+python scripts/ci.py matrix
+python scripts/ci.py matrix --version 30.2
 
 # See Docker tags for a version
 python scripts/ci.py tags --version 30.2
