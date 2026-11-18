@@ -9,64 +9,11 @@ Commands:
 
 import argparse
 import json
-import re
 import subprocess
 import sys
 from pathlib import Path
 
-
-class Version:
-    """Parsed version with comparison support."""
-
-    def __init__(self, version_str: str):
-        self.original = version_str
-        self.major = 0
-        self.minor = 0
-        self.patch = 0
-        self.rc = None
-
-        match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?(rc(\d+))?$", version_str)
-        if not match:
-            raise ValueError(f"Invalid version format: {version_str}")
-
-        self.major = int(match.group(1))
-        self.minor = int(match.group(2))
-        self.patch = int(match.group(3)) if match.group(3) else 0
-        self.rc = int(match.group(5)) if match.group(5) else None
-
-    def __str__(self):
-        return self.original
-
-    def __lt__(self, other):
-        self_tuple = (self.major, self.minor, self.patch)
-        other_tuple = (other.major, other.minor, other.patch)
-        if self_tuple != other_tuple:
-            return self_tuple < other_tuple
-        if self.rc is None and other.rc is None:
-            return False
-        if self.rc is None:
-            return False
-        if other.rc is None:
-            return True
-        return self.rc < other.rc
-
-    def __eq__(self, other):
-        return (
-            self.major == other.major
-            and self.minor == other.minor
-            and self.patch == other.patch
-            and self.rc == other.rc
-        )
-
-    def __le__(self, other):
-        return self < other or self == other
-
-    def __ge__(self, other):
-        return not self < other
-
-    @property
-    def is_rc(self):
-        return self.rc is not None
+from versions import Version
 
 
 def get_repo_root() -> Path:
