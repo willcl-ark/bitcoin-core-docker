@@ -26,7 +26,7 @@ pushed version that does not already have one.
 `just list` for the current set.
 
 `deprecated/` is always excluded, and `master/` is built only by the
-nightly workflows (it has no top-level `Dockerfile`).
+nightly workflows.
 
 ## Manual Workflow Dispatch
 
