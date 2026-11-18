@@ -113,3 +113,27 @@ jobs:
             --build-arg "VCS_REF=${GITHUB_SHA::8}" \
             $(printf "%s" "${TAGS[@]/#/ --tag }") \
             ${{ steps.prepare.outputs.build_path }}/
+
+  tag:
+    needs: [discover, build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create git tags for pushed versions
+        env:
+          MATRIX: ${{ needs.discover.outputs.matrix }}
+        run: |
+          for version in $(jq -r '.include[].version' <<< "$MATRIX" | sort -u); do
+            tag="v$version"
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "$tag already exists, skipping"
+              continue
+            fi
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "$tag"
+          done
