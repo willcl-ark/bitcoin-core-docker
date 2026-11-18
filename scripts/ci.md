@@ -21,11 +21,12 @@ pushed version that does not already have one.
 
 ## Versions
 
-"All versions" means all top-level directories containing a `Dockerfile`:
-- `27.2`, `28.3`, `29.2`, `30.2`, `master`
-- Plus their `/alpine` variants
+"All versions" means all top-level directories containing a `Dockerfile`
+(e.g. `30.4`, `31.2`, `32.1`), plus their `alpine/` variants. See
+`just list` for the current set.
 
-The `deprecated/` directory is always excluded.
+`deprecated/` is always excluded, and `master/` is built only by the
+nightly workflows (it has no top-level `Dockerfile`).
 
 ## Manual Workflow Dispatch
 
@@ -63,26 +64,27 @@ Tags are generated based on version number:
 | 30.2 (latest) | alpine | `bitcoin/bitcoin:30.2-alpine`, `:30-alpine`, `:alpine` |
 | 29.2 | debian | `bitcoin/bitcoin:29.2`, `:29` |
 | 29.2 | alpine | `bitcoin/bitcoin:29.2-alpine`, `:29-alpine` |
-| master | debian | `bitcoin/bitcoin:master` |
-| master | alpine | `bitcoin/bitcoin:master-alpine` |
+| 31.0rc1 | debian | `bitcoin/bitcoin:31.0rc1` |
+| 31.0rc1 | alpine | `bitcoin/bitcoin:31.0rc1-alpine` |
 
 The highest non-RC version automatically gets the `latest` and `alpine` tags.
+Release candidates only get their exact version tag.
 
 ## Platform Support
 
 | Version | Variant | Platforms |
 |---------|---------|-----------|
-| Releases (27.2, etc.) | debian | `linux/amd64`, `linux/arm64`, `linux/arm/v7` |
+| Releases | debian | `linux/amd64`, `linux/arm64`, `linux/arm/v7` |
 | Releases | alpine | `linux/amd64` |
-| master | debian | `linux/amd64` |
-| master | alpine | `linux/amd64` |
-
-Full multi-arch master builds are handled by the nightly workflows.
+| master | nix | `linux/amd64`, `linux/arm64` |
+| master | alpine | `linux/amd64`, `linux/arm64` |
 
 ## Nightly Builds
 
-The `master` directory has separate nightly workflows:
-- `.github/workflows/alpine-master.yml` - Daily alpine build
-- `.github/workflows/debian-master.yml` - Daily debian build
+The `master` directory is built by separate nightly workflows, from Bitcoin
+Core's master branch:
+- `.github/workflows/nix-master.yml` - Nix-built image, pushed as `bitcoin/bitcoin:master`
+- `.github/workflows/alpine-master.yml` - Alpine image, pushed as `bitcoin/bitcoin:master-alpine`
 
-These run on a schedule and push to Docker Hub automatically.
+They push to Docker Hub only on the daily schedule. Pushes that change their
+files under `master/` trigger a test build without pushing.
