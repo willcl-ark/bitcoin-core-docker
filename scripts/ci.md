@@ -6,21 +6,27 @@ The CI is controlled by `scripts/ci.py` and `.github/workflows/build.yml`.
 
 | Trigger | What's Built | Push to Docker Hub? |
 |---------|--------------|---------------------|
-| PR to master | All versions + alpine variants | No |
-| Push to master | All versions + alpine variants | No |
-| Tag push (`v30.2`) | Tagged version only | Yes |
+| PR to master | Versions changed by the PR | No |
+| Push to master | Versions changed by the push | Yes |
 | Manual (no version) | All versions + alpine variants | No |
 | Manual (version=`30.2`) | Specified version only | Yes |
 
-If you push a commit and tag together, the branch build is automatically skipped (the tag build handles it).
+After a successful push to master, CI creates a `v<version>` git tag for each
+pushed version that does not already have one.
+
+## Release process
+
+1. Open a PR with `just add <version>` (or `just deprecate <version>`).
+2. Merge it once CI passes. CI pushes the changed versions to Docker Hub and tags them.
 
 ## Versions
 
-"All versions" means all top-level directories containing a `Dockerfile`:
-- `27.2`, `28.3`, `29.2`, `30.2`, `master`
-- Plus their `/alpine` variants
+"All versions" means all top-level directories containing a `Dockerfile`
+(e.g. `30.4`, `31.2`, `32.1`), plus their `alpine/` variants. See
+`just list` for the current set.
 
-The `deprecated/` directory is always excluded.
+`deprecated/` is always excluded, and `master/` is built only by the
+nightly workflows.
 
 ## Manual Workflow Dispatch
 
@@ -36,19 +42,12 @@ Leave the version field empty to build all versions without pushing.
 ## Testing Locally
 
 ```bash
-# See what would be built for a PR/push to master
-python scripts/ci.py matrix --ref refs/heads/master
+# See what would be built for changes since a commit (as in a PR/push to master)
+python scripts/ci.py matrix --base origin/master
 
-# See what would be built for a tag
-python scripts/ci.py matrix --ref refs/tags/v30.2
-
-# See what would be built for manual dispatch with version
-python scripts/ci.py matrix --ref refs/heads/master --version 30.2
-
-# Check if images would be pushed
-python scripts/ci.py should-push --ref refs/tags/v30.2      # true
-python scripts/ci.py should-push --ref refs/heads/master    # false
-python scripts/ci.py should-push --ref refs/heads/master --version 30.2  # true
+# See what would be built for manual dispatch without/with version
+python scripts/ci.py matrix
+python scripts/ci.py matrix --version 30.2
 
 # See Docker tags for a version
 python scripts/ci.py tags --version 30.2
@@ -65,26 +64,27 @@ Tags are generated based on version number:
 | 30.2 (latest) | alpine | `bitcoin/bitcoin:30.2-alpine`, `:30-alpine`, `:alpine` |
 | 29.2 | debian | `bitcoin/bitcoin:29.2`, `:29` |
 | 29.2 | alpine | `bitcoin/bitcoin:29.2-alpine`, `:29-alpine` |
-| master | debian | `bitcoin/bitcoin:master` |
-| master | alpine | `bitcoin/bitcoin:master-alpine` |
+| 31.0rc1 | debian | `bitcoin/bitcoin:31.0rc1` |
+| 31.0rc1 | alpine | `bitcoin/bitcoin:31.0rc1-alpine` |
 
 The highest non-RC version automatically gets the `latest` and `alpine` tags.
+Release candidates only get their exact version tag.
 
 ## Platform Support
 
 | Version | Variant | Platforms |
 |---------|---------|-----------|
-| Releases (27.2, etc.) | debian | `linux/amd64`, `linux/arm64`, `linux/arm/v7` |
+| Releases | debian | `linux/amd64`, `linux/arm64`, `linux/arm/v7` |
 | Releases | alpine | `linux/amd64` |
-| master | debian | `linux/amd64` |
-| master | alpine | `linux/amd64` |
-
-Full multi-arch master builds are handled by the nightly workflows.
+| master | nix | `linux/amd64`, `linux/arm64` |
+| master | alpine | `linux/amd64`, `linux/arm64` |
 
 ## Nightly Builds
 
-The `master` directory has separate nightly workflows:
-- `.github/workflows/alpine-master.yml` - Daily alpine build
-- `.github/workflows/debian-master.yml` - Daily debian build
+The `master` directory is built by separate nightly workflows, from Bitcoin
+Core's master branch:
+- `.github/workflows/nix-master.yml` - Nix-built image, pushed as `bitcoin/bitcoin:master`
+- `.github/workflows/alpine-master.yml` - Alpine image, pushed as `bitcoin/bitcoin:master-alpine`
 
-These run on a schedule and push to Docker Hub automatically.
+They push to Docker Hub only on the daily schedule. Pushes that change their
+files under `master/` trigger a test build without pushing.
