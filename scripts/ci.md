@@ -19,6 +19,18 @@ pushed version that does not already have one.
 1. Open a PR with `just add <version>` (or `just deprecate <version>`).
 2. Merge it once CI passes. CI pushes the changed versions to Docker Hub and tags them.
 
+### Point releases
+
+`.github/workflows/new-releases.yml` does step 1 daily for new point releases
+of active majors on bitcoincore.org. It opens one PR per version, from
+`release/<version>`, and never merges.
+
+It skips a version if that branch exists or an open PR already adds it, so close
+a PR without deleting its branch to stop the version being proposed again. If a
+run pushes a branch but fails to open the PR, delete the branch to retry.
+
+New majors, and majors with an active RC, must be added by hand.
+
 ## Versions
 
 "All versions" means all top-level directories containing a `Dockerfile`
