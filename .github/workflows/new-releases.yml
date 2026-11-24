@@ -1,0 +1,53 @@
+name: new-releases
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  open-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          persist-credentials: false
+
+      # Uses a PAT (not GITHUB_TOKEN) so that the PRs trigger build.yml.
+      - name: Open a PR for each new point release
+        env:
+          GH_TOKEN: ${{ secrets.FLAKE_UPDATE_TOKEN }}
+        run: |
+          gh auth setup-git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          versions=$(python scripts/ci.py new-releases)
+          for version in $versions; do
+            branch="release/$version"
+            if git ls-remote --exit-code --heads origin "refs/heads/$branch" > /dev/null; then
+              echo "$branch already exists, skipping $version"
+              continue
+            fi
+            pr=$(gh pr list --json number,files \
+              --jq ".[] | select(any(.files[]; .path == \"$version/Dockerfile\")) | .number")
+            if [[ -n "$pr" ]]; then
+              echo "An open PR already adds $version, skipping"
+              continue
+            fi
+
+            git switch -c "$branch" master
+            python scripts/version_manager.py add "$version"
+            git add -A
+            git commit -m "add $version" -m "Generated with \`just add $version\`."
+            git push origin "$branch"
+            gh pr create --base master --head "$branch" --title "add $version" --body \
+          "[Bitcoin Core $version](https://bitcoincore.org/bin/bitcoin-core-$version/) is on bitcoincore.org. Generated with \`just add $version\`.
+
+          Merging pushes the images to Docker Hub and creates the \`v$version\` git tag, so check that the release has been announced first."
+          done
